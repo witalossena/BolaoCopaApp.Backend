@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BolaoCopaApp.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 [Authorize(Roles = "Admin")] // Just a stub for Admin role
 public class AdminController : ControllerBase
 {

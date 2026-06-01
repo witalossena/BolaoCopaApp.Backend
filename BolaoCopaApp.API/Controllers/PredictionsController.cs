@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace BolaoCopaApp.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 [Authorize] // Requires login
 public class PredictionsController : ControllerBase
 {
