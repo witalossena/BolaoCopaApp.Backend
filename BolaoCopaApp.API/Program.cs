@@ -70,7 +70,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policy => policy
-            .WithOrigins("http://localhost:5173", "http://localhost:3000") // Common React/Vite ports
+            .WithOrigins("http://localhost:5173", "http://localhost:3000", "https://copadobolao.com.br", "https://www.copadobolao.com.br")
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
