@@ -37,16 +37,31 @@ public class PaymentController : ControllerBase
     }
 
     [HttpPost("webhook")]
-    public async Task<IActionResult> Webhook([FromQuery] string type, [FromBody] dynamic data, CancellationToken ct)
+    public async Task<IActionResult> Webhook([FromQuery] string? type, [FromQuery] string? data_id, [FromBody] System.Text.Json.JsonElement body, CancellationToken ct)
     {
-        // Mercado Pago sends different types of notifications. We only care about "payment"
-        if (type == "payment")
+        // Mercado Pago can send info in different ways depending on the notification version
+        // 1. Via Query String: ?type=payment&data.id=123
+        // 2. Via Body: { "type": "payment", "data": { "id": "123" } }
+
+        string? notificationType = type;
+        string? paymentIdStr = data_id;
+
+        if (string.IsNullOrEmpty(notificationType) && body.TryGetProperty("type", out var typeProp))
         {
-            long paymentId = (long)data.data.id;
+            notificationType = typeProp.GetString();
+        }
+
+        if (string.IsNullOrEmpty(paymentIdStr) && body.TryGetProperty("data", out var dataProp) && dataProp.TryGetProperty("id", out var idProp))
+        {
+            paymentIdStr = idProp.GetString();
+        }
+
+        if (notificationType == "payment" && long.TryParse(paymentIdStr, out long paymentId))
+        {
             await _paymentService.ProcessWebhookAsync(paymentId, "approved", ct);
         }
 
-        // Always return 200/201 to MP to acknowledge receipt
+        // Always return 200 or 201 to Mercado Pago
         return Ok();
     }
 }
