@@ -1,4 +1,4 @@
-using BolaoCopaApp.Application.DTOs;
+using BolaoCopaApp.Application.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace BolaoCopaApp.Infrastructure.Services;
 
-public class JwtService
+public class JwtService : IJwtService
 {
     private readonly IConfiguration _configuration;
 
