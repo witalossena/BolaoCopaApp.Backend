@@ -1,0 +1,26 @@
+# .gitignore for .NET
+## Build outputs
+bin/
+obj/
+
+## IDEs and Editors
+.vs/
+.vscode/
+*.user
+*.userosscache
+*.sln.docstates
+
+## OS generated files
+desktop.ini
+Thumbs.db
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Entity Framework
+*.db
+*.sqlite

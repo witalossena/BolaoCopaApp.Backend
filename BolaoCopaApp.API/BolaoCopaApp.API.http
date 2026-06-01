@@ -1,0 +1,6 @@
+@BolaoCopaApp.API_HostAddress = http://localhost:5185
+
+GET {{BolaoCopaApp.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

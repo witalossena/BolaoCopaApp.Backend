@@ -1,0 +1,51 @@
+using BolaoCopaApp.Application.Commands;
+using BolaoCopaApp.Application.DTOs;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
+namespace BolaoCopaApp.API.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize] // Requires login
+public class PredictionsController : ControllerBase
+{
+    private readonly IMediator _mediator;
+
+    public PredictionsController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
+    private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? Guid.Empty.ToString()); // Fallback for dummy tests
+
+    [HttpPost("match")]
+    public async Task<ActionResult> SubmitMatchPrediction([FromBody] PredictionDto request)
+    {
+        try
+        {
+            await _mediator.Send(new SubmitPredictionCommand(GetUserId(), request.MatchId, request.HomeScore, request.AwayScore));
+            return Ok(new { message = "Prediction saved." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("group-rank")]
+    public async Task<ActionResult> SubmitGroupRankPrediction([FromBody] GroupRankDto request)
+    {
+        try
+        {
+            await _mediator.Send(new SubmitGroupRankCommand(GetUserId(), request.Group, request.FirstTeam, request.SecondTeam));
+            return Ok(new { message = "Group rank prediction saved." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+}
