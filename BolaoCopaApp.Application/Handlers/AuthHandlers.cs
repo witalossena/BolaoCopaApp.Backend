@@ -3,10 +3,9 @@ using BolaoCopaApp.Application.DTOs;
 using BolaoCopaApp.Domain.Entities;
 using BolaoCopaApp.Domain.Interfaces;
 using BolaoCopaApp.Domain.Interfaces.Repositories;
+using BolaoCopaApp.Infrastructure.Services;
 using MediatR;
 using BCrypt.Net;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace BolaoCopaApp.Application.Handlers;
 
@@ -16,20 +15,22 @@ public class AuthHandlers :
 {
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _uow;
+    private readonly JwtService _jwtService;
 
-    public AuthHandlers(IUserRepository userRepository, IUnitOfWork uow)
+    public AuthHandlers(IUserRepository userRepository, IUnitOfWork uow, JwtService jwtService)
     {
         _userRepository = userRepository;
         _uow = uow;
+        _jwtService = jwtService;
     }
 
     public async Task<AuthResponse> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
         var existingEmail = await _userRepository.GetByEmailAsync(request.Request.Email, cancellationToken);
-        if (existingEmail != null) throw new Exception("Email already in use");
+        if (existingEmail != null) throw new Exception("Email em uso");
 
         var existingHandle = await _userRepository.GetByHandleAsync(request.Request.Handle, cancellationToken);
-        if (existingHandle != null) throw new Exception("Handle already in use");
+        if (existingHandle != null) throw new Exception("Username em uso");
 
         var user = new User
         {
@@ -42,8 +43,8 @@ public class AuthHandlers :
         await _userRepository.AddAsync(user, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
 
-        // Dummy token for now, real token generated in API or a separate IJwtProvider service
-        return new AuthResponse("dummy-token", new UserDto(user.Id, user.Name, user.Handle, user.IsPaid, new PointsDto(0,0,0,0,0,0)));
+        var token = _jwtService.GenerateToken(user.Id, user.Email, user.Role.ToString());
+        return new AuthResponse(token, new UserDto(user.Id, user.Name, user.Handle, user.IsPaid, new PointsDto(0,0,0,0,0,0)));
     }
 
     public async Task<AuthResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -51,9 +52,10 @@ public class AuthHandlers :
         var user = await _userRepository.GetByEmailAsync(request.Request.Email, cancellationToken);
         if (user == null || !global::BCrypt.Net.BCrypt.Verify(request.Request.Password, user.PasswordHash))
         {
-            throw new Exception("Invalid credentials");
+            throw new Exception("Credenciais inválidas");
         }
 
-        return new AuthResponse("dummy-token", new UserDto(user.Id, user.Name, user.Handle, user.IsPaid, new PointsDto(0,0,0,0,0,0)));
+        var token = _jwtService.GenerateToken(user.Id, user.Email, user.Role.ToString());
+        return new AuthResponse(token, new UserDto(user.Id, user.Name, user.Handle, user.IsPaid, new PointsDto(0,0,0,0,0,0)));
     }
 }

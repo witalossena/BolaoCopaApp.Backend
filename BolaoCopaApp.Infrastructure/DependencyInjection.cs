@@ -25,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<ISpecialPredictionRepository, SpecialPredictionRepository>();
         services.AddScoped<IKnockoutPredictionRepository, KnockoutPredictionRepository>();
         services.AddScoped<ITournamentRepository, TournamentRepository>();
+        services.AddScoped<BolaoCopaApp.Infrastructure.Services.JwtService>();
 
         return services;
     }
