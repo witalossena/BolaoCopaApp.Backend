@@ -44,7 +44,7 @@ public class AuthHandlers :
         await _uow.SaveChangesAsync(cancellationToken);
 
         var token = _jwtService.GenerateToken(user.Id, user.Email, user.Role.ToString());
-        return new AuthResponse(token, new UserDto(user.Id, user.Name, user.Handle, user.IsPaid, new PointsDto(0,0,0,0,0,0)));
+        return new AuthResponse(token, new UserDto(user.Id, user.Name, user.Handle, user.IsPaid, user.Role.ToString(), new PointsDto(0,0,0,0,0,0)));
     }
 
     public async Task<AuthResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -56,6 +56,6 @@ public class AuthHandlers :
         }
 
         var token = _jwtService.GenerateToken(user.Id, user.Email, user.Role.ToString());
-        return new AuthResponse(token, new UserDto(user.Id, user.Name, user.Handle, user.IsPaid, new PointsDto(0,0,0,0,0,0)));
+        return new AuthResponse(token, new UserDto(user.Id, user.Name, user.Handle, user.IsPaid, user.Role.ToString(), new PointsDto(0,0,0,0,0,0)));
     }
 }
