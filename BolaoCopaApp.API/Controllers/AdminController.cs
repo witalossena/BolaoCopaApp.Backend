@@ -1,4 +1,6 @@
 using BolaoCopaApp.Application.Commands;
+using BolaoCopaApp.Application.Queries;
+using BolaoCopaApp.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +17,20 @@ public class AdminController : ControllerBase
     public AdminController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    [HttpGet("stats")]
+    public async Task<ActionResult<AdminStatsDto>> GetStats()
+    {
+        var stats = await _mediator.Send(new GetAdminStatsQuery());
+        return Ok(stats);
+    }
+
+    [HttpGet("users")]
+    public async Task<ActionResult<IEnumerable<AdminUserDto>>> GetUsers()
+    {
+        var users = await _mediator.Send(new GetUsersAdminQuery());
+        return Ok(users);
     }
 
     [HttpPost("match-result")]

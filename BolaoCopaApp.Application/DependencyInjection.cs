@@ -16,6 +16,7 @@ public static class DependencyInjection
         // Domain services
         services.AddScoped<ScoringService>();
         services.AddScoped<PredictionValidationService>();
+        services.AddScoped<BolaoCopaApp.Application.Interfaces.IJwtService, BolaoCopaApp.Application.Interfaces.JwtService>();
 
         return services;
     }

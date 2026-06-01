@@ -7,7 +7,9 @@ namespace BolaoCopaApp.Application.Handlers;
 
 public class QueryHandlers :
     IRequestHandler<GetMatchesQuery, IEnumerable<MatchDto>>,
-    IRequestHandler<GetRankingQuery, IEnumerable<RankingEntryDto>>
+    IRequestHandler<GetRankingQuery, IEnumerable<RankingEntryDto>>,
+    IRequestHandler<GetAdminStatsQuery, AdminStatsDto>,
+    IRequestHandler<GetUsersAdminQuery, IEnumerable<AdminUserDto>>
 {
     private readonly IMatchRepository _matchRepo;
     private readonly IUserRepository _userRepo;
@@ -30,6 +32,42 @@ public class QueryHandlers :
         _groupRankRepo = groupRankRepo;
         _specialRepo = specialRepo;
         _knockoutRepo = knockoutRepo;
+    }
+
+    public async Task<AdminStatsDto> Handle(GetAdminStatsQuery request, CancellationToken cancellationToken)
+    {
+        var users = await _userRepo.GetAllAsync(cancellationToken);
+        var matches = await _matchRepo.GetAllAsync(cancellationToken);
+
+        int totalUsers = users.Count();
+        int paidCount = users.Count(u => u.IsPaid);
+        int pendingCount = totalUsers - paidCount;
+        int totalMatches = matches.Count();
+
+        return new AdminStatsDto(totalUsers, paidCount, pendingCount, totalMatches);
+    }
+
+    public async Task<IEnumerable<AdminUserDto>> Handle(GetUsersAdminQuery request, CancellationToken cancellationToken)
+    {
+        var users = await _userRepo.GetAllAsync(cancellationToken);
+        var result = new List<AdminUserDto>();
+
+        foreach (var user in users)
+        {
+            var matchPredictions = await _predictionRepo.GetByUserIdAsync(user.Id, cancellationToken);
+            var groupPredictions = await _groupRankRepo.GetByUserIdAsync(user.Id, cancellationToken);
+            var specialPrediction = await _specialRepo.GetByUserIdAsync(user.Id, cancellationToken);
+            var knockoutPredictions = await _knockoutRepo.GetByUserIdAsync(user.Id, cancellationToken);
+
+            int totalPts = matchPredictions.Sum(p => p.Points) + 
+                          groupPredictions.Sum(g => g.Points) + 
+                          (specialPrediction?.Points ?? 0) + 
+                          knockoutPredictions.Sum(k => k.Points);
+
+            result.Add(new AdminUserDto(user.Id, user.Name, user.Handle.Value, totalPts, user.IsPaid));
+        }
+
+        return result.OrderBy(u => u.Name);
     }
 
     public async Task<IEnumerable<RankingEntryDto>> Handle(GetRankingQuery request, CancellationToken cancellationToken)

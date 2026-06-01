@@ -3,7 +3,7 @@ using BolaoCopaApp.Application.DTOs;
 using BolaoCopaApp.Domain.Entities;
 using BolaoCopaApp.Domain.Interfaces;
 using BolaoCopaApp.Domain.Interfaces.Repositories;
-using BolaoCopaApp.Infrastructure.Services;
+using BolaoCopaApp.Application.Interfaces;
 using MediatR;
 using BCrypt.Net;
 
@@ -15,9 +15,9 @@ public class AuthHandlers :
 {
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _uow;
-    private readonly JwtService _jwtService;
+    private readonly IJwtService _jwtService;
 
-    public AuthHandlers(IUserRepository userRepository, IUnitOfWork uow, JwtService jwtService)
+    public AuthHandlers(IUserRepository userRepository, IUnitOfWork uow, IJwtService jwtService)
     {
         _userRepository = userRepository;
         _uow = uow;
