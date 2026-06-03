@@ -6,6 +6,34 @@ namespace BolaoCopaApp.Infrastructure.Persistence.Seeders;
 
 public static class MatchSeeder
 {
+    public static async Task SeedKnockoutAsync(BolaoDbContext context)
+    {
+        if (context.Matches.Any(m => m.Round != MatchRound.Group)) return;
+
+        var knockout = new List<Match>
+        {
+            new Match { ExternalId = "ko_r16_0", HomeTeam = "1º A", AwayTeam = "2º B", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 6, 29, 19, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_1", HomeTeam = "1º C", AwayTeam = "2º D", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 6, 29, 22, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_2", HomeTeam = "1º E", AwayTeam = "2º F", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 6, 30, 19, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_3", HomeTeam = "1º G", AwayTeam = "2º H", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 6, 30, 22, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_4", HomeTeam = "2º A", AwayTeam = "1º B", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  1, 19, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_5", HomeTeam = "2º C", AwayTeam = "1º D", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  1, 22, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_6", HomeTeam = "2º E", AwayTeam = "1º F", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  2, 19, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_7", HomeTeam = "2º G", AwayTeam = "1º H", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  2, 22, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_qf_0", HomeTeam = "Vencedor R16-1", AwayTeam = "Vencedor R16-2", Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 5, 19, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_qf_1", HomeTeam = "Vencedor R16-3", AwayTeam = "Vencedor R16-4", Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 5, 22, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_qf_2", HomeTeam = "Vencedor R16-5", AwayTeam = "Vencedor R16-6", Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 6, 19, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_qf_3", HomeTeam = "Vencedor R16-7", AwayTeam = "Vencedor R16-8", Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 6, 22, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_sf_0", HomeTeam = "Vencedor QF-1", AwayTeam = "Vencedor QF-2", Round = MatchRound.SemiFinal, MatchDate = new DateTime(2026, 7, 9, 19, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_sf_1", HomeTeam = "Vencedor QF-3", AwayTeam = "Vencedor QF-4", Round = MatchRound.SemiFinal, MatchDate = new DateTime(2026, 7, 10, 19, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_3rd",   HomeTeam = "Perdedor SF-1", AwayTeam = "Perdedor SF-2", Round = MatchRound.ThirdPlace, MatchDate = new DateTime(2026, 7, 13, 19, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_final", HomeTeam = "Vencedor SF-1", AwayTeam = "Vencedor SF-2", Round = MatchRound.Final,      MatchDate = new DateTime(2026, 7, 14, 19, 0, 0, DateTimeKind.Utc) },
+        };
+
+        await context.Matches.AddRangeAsync(knockout);
+        await context.SaveChangesAsync();
+    }
+
     public static async Task SeedAsync(BolaoDbContext context)
     {
         if (context.Matches.Any()) return;
@@ -108,31 +136,6 @@ public static class MatchSeeder
             new Match { ExternalId = "m70", HomeTeam = "Panamá",              AwayTeam = "Inglaterra",           Group = "L", Round = MatchRound.Group, MatchDate = new DateTime(2026, 6, 27, 19, 0, 0, DateTimeKind.Utc) },
             new Match { ExternalId = "m71", HomeTeam = "Croácia",             AwayTeam = "Gana",                 Group = "L", Round = MatchRound.Group, MatchDate = new DateTime(2026, 6, 27, 19, 0, 0, DateTimeKind.Utc) },
         };
-
-        // Oitavas de final (8 jogos)
-        var knockout = new List<Match>
-        {
-            new Match { ExternalId = "ko_r16_0", HomeTeam = "1º A", AwayTeam = "2º B", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 6, 29, 19, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_1", HomeTeam = "1º C", AwayTeam = "2º D", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 6, 29, 22, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_2", HomeTeam = "1º E", AwayTeam = "2º F", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 6, 30, 19, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_3", HomeTeam = "1º G", AwayTeam = "2º H", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 6, 30, 22, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_4", HomeTeam = "2º A", AwayTeam = "1º B", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  1, 19, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_5", HomeTeam = "2º C", AwayTeam = "1º D", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  1, 22, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_6", HomeTeam = "2º E", AwayTeam = "1º F", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  2, 19, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_7", HomeTeam = "2º G", AwayTeam = "1º H", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  2, 22, 0, 0, DateTimeKind.Utc) },
-            // Quartas de final (4 jogos)
-            new Match { ExternalId = "ko_qf_0", HomeTeam = "Vencedor R16-1", AwayTeam = "Vencedor R16-2", Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 5, 19, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_qf_1", HomeTeam = "Vencedor R16-3", AwayTeam = "Vencedor R16-4", Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 5, 22, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_qf_2", HomeTeam = "Vencedor R16-5", AwayTeam = "Vencedor R16-6", Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 6, 19, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_qf_3", HomeTeam = "Vencedor R16-7", AwayTeam = "Vencedor R16-8", Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 6, 22, 0, 0, DateTimeKind.Utc) },
-            // Semifinal (2 jogos)
-            new Match { ExternalId = "ko_sf_0", HomeTeam = "Vencedor QF-1", AwayTeam = "Vencedor QF-2", Round = MatchRound.SemiFinal, MatchDate = new DateTime(2026, 7, 9, 19, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_sf_1", HomeTeam = "Vencedor QF-3", AwayTeam = "Vencedor QF-4", Round = MatchRound.SemiFinal, MatchDate = new DateTime(2026, 7, 10, 19, 0, 0, DateTimeKind.Utc) },
-            // 3º lugar e Final
-            new Match { ExternalId = "ko_3rd",   HomeTeam = "Perdedor SF-1", AwayTeam = "Perdedor SF-2", Round = MatchRound.ThirdPlace, MatchDate = new DateTime(2026, 7, 13, 19, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_final", HomeTeam = "Vencedor SF-1", AwayTeam = "Vencedor SF-2", Round = MatchRound.Final,      MatchDate = new DateTime(2026, 7, 14, 19, 0, 0, DateTimeKind.Utc) },
-        };
-        matches.AddRange(knockout);
 
         await context.Matches.AddRangeAsync(matches);
 
