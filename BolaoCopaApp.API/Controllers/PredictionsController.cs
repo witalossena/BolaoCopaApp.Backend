@@ -63,4 +63,18 @@ public class PredictionsController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    [HttpPost("knockout")]
+    public async Task<ActionResult> SubmitKnockoutPrediction([FromBody] KnockoutPredictionDto request)
+    {
+        try
+        {
+            await _mediator.Send(new SubmitKnockoutPredictionCommand(GetUserId(), request.MatchId, request.WinnerTeam));
+            return Ok(new { message = "Knockout prediction saved." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }

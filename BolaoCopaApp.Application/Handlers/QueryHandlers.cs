@@ -135,7 +135,12 @@ public class QueryHandlers :
         var groupPreds = await _groupRankRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         var groupDtos = groupPreds.Select(g => new GroupRankSummaryDto(g.Group, g.FirstTeam, g.SecondTeam));
 
-        return new UserPredictionsDto(matchDtos, groupDtos);
+        var knockoutPreds = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        var knockoutDtos = knockoutPreds
+            .Where(k => matchMap.ContainsKey(k.MatchId))
+            .Select(k => new KnockoutPredictionSummaryDto(matchMap[k.MatchId], k.WinnerTeam));
+
+        return new UserPredictionsDto(matchDtos, groupDtos, knockoutDtos);
     }
 
     public async Task<IEnumerable<PredictionHistoryItemDto>> Handle(GetUserHistoryQuery request, CancellationToken cancellationToken)
