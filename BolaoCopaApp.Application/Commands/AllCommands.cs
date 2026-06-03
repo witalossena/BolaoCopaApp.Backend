@@ -14,4 +14,5 @@ public record SubmitKnockoutPredictionCommand(Guid UserId, string MatchId, strin
 public record RegisterMatchResultCommand(string MatchId, int HomeScore, int AwayScore) : IRequest<bool>;
 public record CalculateAllScoresCommand() : IRequest<bool>;
 public record ToggleUserPaymentCommand(Guid UserId, bool IsPaid) : IRequest<bool>;
+public record LockMatchCommand(string MatchId, bool IsLocked) : IRequest<bool>;
 public record SeedMatchesCommand() : IRequest<bool>;

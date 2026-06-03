@@ -40,6 +40,13 @@ public class AdminController : ControllerBase
         return Ok(new { message = "Match result registered." });
     }
 
+    [HttpPatch("matches/{id}/lock")]
+    public async Task<ActionResult> LockMatch(string id, [FromBody] bool isLocked)
+    {
+        await _mediator.Send(new LockMatchCommand(id, isLocked));
+        return Ok(new { message = "Match lock status updated." });
+    }
+
     [HttpPost("calculate-scores")]
     public async Task<ActionResult> CalculateScores()
     {

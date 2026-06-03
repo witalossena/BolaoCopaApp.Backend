@@ -7,7 +7,7 @@ public record AuthResponse(string Token, UserDto User);
 public record PointsDto(int GroupPts, int KnockoutPts, int SpecialPts, int Total, int ExactCount, double ExactRate);
 public record UserDto(Guid Id, string Name, string Handle, bool IsPaid, string Role, PointsDto Points);
 
-public record MatchDto(string Id, string HomeTeam, string AwayTeam, string Group, string Round, DateTime MatchDate, string Status, int? RealHome, int? RealAway);
+public record MatchDto(string Id, string ExternalId, string HomeTeam, string AwayTeam, string Group, string Round, DateTime MatchDate, string Status, int? RealHome, int? RealAway);
 public record PredictionDto(string MatchId, int HomeScore, int AwayScore, int? Points);
 public record GroupRankDto(string Group, string FirstTeam, string SecondTeam, int? Points);
 public record SpecialPredictionDto(string Champion, string RunnerUp, string ThirdPlace, string OtherFinalist, string TopScorer, string MostAssists, string MVP, string GoldenBoy, int? TotalPoints);

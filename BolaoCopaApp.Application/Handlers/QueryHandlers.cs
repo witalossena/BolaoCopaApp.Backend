@@ -108,6 +108,7 @@ public class QueryHandlers :
 
         return matches.Select(m => new MatchDto(
             m.Id.ToString(),
+            m.ExternalId,
             m.HomeTeam,
             m.AwayTeam,
             m.Group ?? "",

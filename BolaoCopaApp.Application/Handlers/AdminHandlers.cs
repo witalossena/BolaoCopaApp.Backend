@@ -10,7 +10,8 @@ namespace BolaoCopaApp.Application.Handlers;
 public class AdminHandlers :
     IRequestHandler<RegisterMatchResultCommand, bool>,
     IRequestHandler<ToggleUserPaymentCommand, bool>,
-    IRequestHandler<CalculateAllScoresCommand, bool>
+    IRequestHandler<CalculateAllScoresCommand, bool>,
+    IRequestHandler<LockMatchCommand, bool>
 {
     private readonly IMatchRepository _matchRepo;
     private readonly IUserRepository _userRepo;
@@ -82,6 +83,18 @@ public class AdminHandlers :
         }
 
         await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(LockMatchCommand request, CancellationToken cancellationToken)
+    {
+        var match = await _matchRepo.GetByIdAsync(Guid.Parse(request.MatchId), cancellationToken);
+        if (match == null) throw new Exception("Match not found");
+
+        match.Status = request.IsLocked ? MatchStatus.Locked : MatchStatus.Open;
+        _matchRepo.Update(match);
+        await _uow.SaveChangesAsync(cancellationToken);
+
         return true;
     }
 }
