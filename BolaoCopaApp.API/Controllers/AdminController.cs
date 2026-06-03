@@ -34,10 +34,17 @@ public class AdminController : ControllerBase
     }
 
     [HttpPost("match-result")]
-    public async Task<ActionResult> RegisterMatchResult([FromBody] RegisterMatchResultCommand command)
+    public async Task<ActionResult> RegisterMatchResult([FromBody] MatchResultRequestDto dto)
     {
-        await _mediator.Send(command);
-        return Ok(new { message = "Match result registered." });
+        try
+        {
+            await _mediator.Send(new RegisterMatchResultCommand(dto.MatchId, dto.HomeScore, dto.AwayScore));
+            return Ok(new { message = "Match result registered." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPatch("matches/{id}/teams")]

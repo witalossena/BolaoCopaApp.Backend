@@ -24,6 +24,7 @@ public record GroupRankSummaryDto(string Group, string FirstTeam, string SecondT
 public record UserPredictionsDto(IEnumerable<MatchPredictionSummaryDto> MatchPredictions, IEnumerable<GroupRankSummaryDto> GroupRanks);
 
 public record UpdateMatchTeamsDto(string HomeTeam, string AwayTeam);
+public record MatchResultRequestDto(string MatchId, int HomeScore, int AwayScore);
 
 public record PredictionHistoryItemDto(
     string HomeTeam, string AwayTeam, string Group,
