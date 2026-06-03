@@ -1,6 +1,6 @@
 using BolaoCopaApp.Application.Commands;
-using BolaoCopaApp.Application.Queries;
 using BolaoCopaApp.Application.DTOs;
+using BolaoCopaApp.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +38,13 @@ public class AdminController : ControllerBase
     {
         await _mediator.Send(command);
         return Ok(new { message = "Match result registered." });
+    }
+
+    [HttpPatch("matches/{id}/teams")]
+    public async Task<ActionResult> UpdateMatchTeams(string id, [FromBody] UpdateMatchTeamsDto dto)
+    {
+        await _mediator.Send(new UpdateMatchTeamsCommand(id, dto.HomeTeam, dto.AwayTeam));
+        return Ok(new { message = "Match teams updated." });
     }
 
     [HttpPatch("matches/{id}/lock")]

@@ -11,7 +11,8 @@ public class AdminHandlers :
     IRequestHandler<RegisterMatchResultCommand, bool>,
     IRequestHandler<ToggleUserPaymentCommand, bool>,
     IRequestHandler<CalculateAllScoresCommand, bool>,
-    IRequestHandler<LockMatchCommand, bool>
+    IRequestHandler<LockMatchCommand, bool>,
+    IRequestHandler<UpdateMatchTeamsCommand, bool>
 {
     private readonly IMatchRepository _matchRepo;
     private readonly IUserRepository _userRepo;
@@ -92,6 +93,19 @@ public class AdminHandlers :
         if (match == null) throw new Exception("Match not found");
 
         match.Status = request.IsLocked ? MatchStatus.Locked : MatchStatus.Open;
+        _matchRepo.Update(match);
+        await _uow.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
+
+    public async Task<bool> Handle(UpdateMatchTeamsCommand request, CancellationToken cancellationToken)
+    {
+        var match = await _matchRepo.GetByIdAsync(Guid.Parse(request.MatchId), cancellationToken);
+        if (match == null) throw new Exception("Match not found");
+
+        match.HomeTeam = request.HomeTeam;
+        match.AwayTeam = request.AwayTeam;
         _matchRepo.Update(match);
         await _uow.SaveChangesAsync(cancellationToken);
 

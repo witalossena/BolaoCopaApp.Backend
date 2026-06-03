@@ -23,6 +23,8 @@ public record MatchPredictionSummaryDto(string ExternalId, int HomeScore, int Aw
 public record GroupRankSummaryDto(string Group, string FirstTeam, string SecondTeam);
 public record UserPredictionsDto(IEnumerable<MatchPredictionSummaryDto> MatchPredictions, IEnumerable<GroupRankSummaryDto> GroupRanks);
 
+public record UpdateMatchTeamsDto(string HomeTeam, string AwayTeam);
+
 public record PredictionHistoryItemDto(
     string HomeTeam, string AwayTeam, string Group,
     int PredictedHome, int PredictedAway,

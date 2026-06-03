@@ -15,4 +15,5 @@ public record RegisterMatchResultCommand(string MatchId, int HomeScore, int Away
 public record CalculateAllScoresCommand() : IRequest<bool>;
 public record ToggleUserPaymentCommand(Guid UserId, bool IsPaid) : IRequest<bool>;
 public record LockMatchCommand(string MatchId, bool IsLocked) : IRequest<bool>;
+public record UpdateMatchTeamsCommand(string MatchId, string HomeTeam, string AwayTeam) : IRequest<bool>;
 public record SeedMatchesCommand() : IRequest<bool>;
