@@ -68,6 +68,13 @@ public class AdminController : ControllerBase
         return Ok(new { message = "Scores calculated." });
     }
 
+    [HttpGet("users/{id}/predictions")]
+    public async Task<ActionResult<UserPredictionsDto>> GetUserPredictions(Guid id)
+    {
+        var predictions = await _mediator.Send(new GetUserPredictionsQuery(id));
+        return Ok(predictions);
+    }
+
     [HttpPatch("users/{id}/payment")]
     public async Task<ActionResult> ToggleUserPayment(Guid id, [FromBody] bool isPaid)
     {
