@@ -9,3 +9,4 @@ public record GetUserPerformanceQuery(Guid UserId) : IRequest<PerformanceDto>;
 public record GetMatchesQuery(string? Group, string? Round) : IRequest<IEnumerable<MatchDto>>;
 public record GetUsersAdminQuery() : IRequest<IEnumerable<AdminUserDto>>;
 public record GetAdminStatsQuery() : IRequest<AdminStatsDto>;
+public record GetUserHistoryQuery(Guid UserId) : IRequest<IEnumerable<PredictionHistoryItemDto>>;

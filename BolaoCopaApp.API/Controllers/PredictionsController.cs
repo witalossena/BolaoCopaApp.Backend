@@ -29,6 +29,13 @@ public class PredictionsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("history")]
+    public async Task<ActionResult<IEnumerable<PredictionHistoryItemDto>>> GetHistory()
+    {
+        var result = await _mediator.Send(new GetUserHistoryQuery(GetUserId()));
+        return Ok(result);
+    }
+
     [HttpPost("match")]
     public async Task<ActionResult> SubmitMatchPrediction([FromBody] PredictionDto request)
     {

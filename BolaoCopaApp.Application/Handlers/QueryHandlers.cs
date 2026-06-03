@@ -10,7 +10,8 @@ public class QueryHandlers :
     IRequestHandler<GetRankingQuery, IEnumerable<RankingEntryDto>>,
     IRequestHandler<GetAdminStatsQuery, AdminStatsDto>,
     IRequestHandler<GetUsersAdminQuery, IEnumerable<AdminUserDto>>,
-    IRequestHandler<GetUserPredictionsQuery, UserPredictionsDto>
+    IRequestHandler<GetUserPredictionsQuery, UserPredictionsDto>,
+    IRequestHandler<GetUserHistoryQuery, IEnumerable<PredictionHistoryItemDto>>
 {
     private readonly IMatchRepository _matchRepo;
     private readonly IUserRepository _userRepo;
@@ -135,5 +136,29 @@ public class QueryHandlers :
         var groupDtos = groupPreds.Select(g => new GroupRankSummaryDto(g.Group, g.FirstTeam, g.SecondTeam));
 
         return new UserPredictionsDto(matchDtos, groupDtos);
+    }
+
+    public async Task<IEnumerable<PredictionHistoryItemDto>> Handle(GetUserHistoryQuery request, CancellationToken cancellationToken)
+    {
+        var preds = await _predictionRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        if (!preds.Any()) return Enumerable.Empty<PredictionHistoryItemDto>();
+
+        var predMap = preds.ToDictionary(p => p.MatchId);
+        var allMatches = await _matchRepo.GetAllAsync(cancellationToken);
+
+        return allMatches
+            .Where(m => m.Status == BolaoCopaApp.Domain.Enums.MatchStatus.Locked
+                     && m.HomeScore != null && m.AwayScore != null
+                     && predMap.ContainsKey(m.Id))
+            .Select(m =>
+            {
+                var p = predMap[m.Id];
+                return new PredictionHistoryItemDto(
+                    m.HomeTeam, m.AwayTeam, m.Group ?? "",
+                    p.HomeScore, p.AwayScore,
+                    m.HomeScore!, m.AwayScore!,
+                    p.Points, m.MatchDate);
+            })
+            .OrderByDescending(x => x.MatchDate);
     }
 }
