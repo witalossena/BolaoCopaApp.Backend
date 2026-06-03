@@ -1,5 +1,6 @@
 using BolaoCopaApp.Application.Commands;
 using BolaoCopaApp.Application.DTOs;
+using BolaoCopaApp.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,13 @@ public class PredictionsController : ControllerBase
     }
 
     private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? Guid.Empty.ToString()); // Fallback for dummy tests
+
+    [HttpGet("me")]
+    public async Task<ActionResult<UserPredictionsDto>> GetMyPredictions()
+    {
+        var result = await _mediator.Send(new GetUserPredictionsQuery(GetUserId()));
+        return Ok(result);
+    }
 
     [HttpPost("match")]
     public async Task<ActionResult> SubmitMatchPrediction([FromBody] PredictionDto request)

@@ -9,7 +9,8 @@ public class QueryHandlers :
     IRequestHandler<GetMatchesQuery, IEnumerable<MatchDto>>,
     IRequestHandler<GetRankingQuery, IEnumerable<RankingEntryDto>>,
     IRequestHandler<GetAdminStatsQuery, AdminStatsDto>,
-    IRequestHandler<GetUsersAdminQuery, IEnumerable<AdminUserDto>>
+    IRequestHandler<GetUsersAdminQuery, IEnumerable<AdminUserDto>>,
+    IRequestHandler<GetUserPredictionsQuery, UserPredictionsDto>
 {
     private readonly IMatchRepository _matchRepo;
     private readonly IUserRepository _userRepo;
@@ -118,5 +119,21 @@ public class QueryHandlers :
             m.HomeScore?.Value,
             m.AwayScore?.Value
         )).OrderBy(m => m.MatchDate);
+    }
+
+    public async Task<UserPredictionsDto> Handle(GetUserPredictionsQuery request, CancellationToken cancellationToken)
+    {
+        var allMatches = await _matchRepo.GetAllAsync(cancellationToken);
+        var matchMap = allMatches.ToDictionary(m => m.Id, m => m.ExternalId);
+
+        var matchPreds = await _predictionRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        var matchDtos = matchPreds
+            .Where(p => matchMap.ContainsKey(p.MatchId))
+            .Select(p => new MatchPredictionSummaryDto(matchMap[p.MatchId], p.HomeScore, p.AwayScore));
+
+        var groupPreds = await _groupRankRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        var groupDtos = groupPreds.Select(g => new GroupRankSummaryDto(g.Group, g.FirstTeam, g.SecondTeam));
+
+        return new UserPredictionsDto(matchDtos, groupDtos);
     }
 }

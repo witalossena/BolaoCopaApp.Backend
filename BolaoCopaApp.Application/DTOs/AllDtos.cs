@@ -18,3 +18,7 @@ public record PerformanceDto(int TotalPts, int Position, int GapToLeader, Points
 
 public record AdminUserDto(Guid Id, string Name, string Handle, int TotalPts, bool IsPaid);
 public record AdminStatsDto(int TotalUsers, int PaidCount, int PendingCount, int TotalMatches);
+
+public record MatchPredictionSummaryDto(string ExternalId, int HomeScore, int AwayScore);
+public record GroupRankSummaryDto(string Group, string FirstTeam, string SecondTeam);
+public record UserPredictionsDto(IEnumerable<MatchPredictionSummaryDto> MatchPredictions, IEnumerable<GroupRankSummaryDto> GroupRanks);
