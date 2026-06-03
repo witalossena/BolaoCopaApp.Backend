@@ -1,6 +1,7 @@
 using BolaoCopaApp.Application.Commands;
 using BolaoCopaApp.Domain.Interfaces;
 using BolaoCopaApp.Domain.Interfaces.Repositories;
+using BolaoCopaApp.Domain.Services;
 using MediatR;
 using BolaoCopaApp.Domain.Enums;
 
@@ -8,16 +9,26 @@ namespace BolaoCopaApp.Application.Handlers;
 
 public class AdminHandlers :
     IRequestHandler<RegisterMatchResultCommand, bool>,
-    IRequestHandler<ToggleUserPaymentCommand, bool>
+    IRequestHandler<ToggleUserPaymentCommand, bool>,
+    IRequestHandler<CalculateAllScoresCommand, bool>
 {
     private readonly IMatchRepository _matchRepo;
     private readonly IUserRepository _userRepo;
+    private readonly IPredictionRepository _predictionRepo;
+    private readonly ScoringService _scoringService;
     private readonly IUnitOfWork _uow;
 
-    public AdminHandlers(IMatchRepository matchRepo, IUserRepository userRepo, IUnitOfWork uow)
+    public AdminHandlers(
+        IMatchRepository matchRepo,
+        IUserRepository userRepo,
+        IPredictionRepository predictionRepo,
+        ScoringService scoringService,
+        IUnitOfWork uow)
     {
         _matchRepo = matchRepo;
         _userRepo = userRepo;
+        _predictionRepo = predictionRepo;
+        _scoringService = scoringService;
         _uow = uow;
     }
 
@@ -28,12 +39,11 @@ public class AdminHandlers :
 
         match.HomeScore = request.HomeScore;
         match.AwayScore = request.AwayScore;
-        match.Status = MatchStatus.Locked; // Locking the match since result is in
+        match.Status = MatchStatus.Locked;
 
         _matchRepo.Update(match);
         await _uow.SaveChangesAsync(cancellationToken);
 
-        // Optionally, fire MediatR event to trigger recalculation
         return true;
     }
 
@@ -46,6 +56,32 @@ public class AdminHandlers :
         _userRepo.Update(user);
         await _uow.SaveChangesAsync(cancellationToken);
 
+        return true;
+    }
+
+    public async Task<bool> Handle(CalculateAllScoresCommand request, CancellationToken cancellationToken)
+    {
+        var allMatches = await _matchRepo.GetAllAsync(cancellationToken);
+        var lockedMatches = allMatches
+            .Where(m => m.Status == MatchStatus.Locked && m.HomeScore != null && m.AwayScore != null)
+            .ToList();
+
+        foreach (var match in lockedMatches)
+        {
+            var predictions = await _predictionRepo.GetByMatchIdAsync(match.Id, cancellationToken);
+            foreach (var pred in predictions)
+            {
+                pred.Points = _scoringService.CalculateMatchScore(
+                    pred.HomeScore,
+                    pred.AwayScore,
+                    match.HomeScore!,
+                    match.AwayScore!
+                );
+                _predictionRepo.Update(pred);
+            }
+        }
+
+        await _uow.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

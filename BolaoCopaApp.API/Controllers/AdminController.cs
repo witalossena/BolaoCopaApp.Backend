@@ -40,6 +40,13 @@ public class AdminController : ControllerBase
         return Ok(new { message = "Match result registered." });
     }
 
+    [HttpPost("calculate-scores")]
+    public async Task<ActionResult> CalculateScores()
+    {
+        await _mediator.Send(new CalculateAllScoresCommand());
+        return Ok(new { message = "Scores calculated." });
+    }
+
     [HttpPatch("users/{id}/payment")]
     public async Task<ActionResult> ToggleUserPayment(Guid id, [FromBody] bool isPaid)
     {
