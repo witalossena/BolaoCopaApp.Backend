@@ -75,6 +75,7 @@ public class KnockoutPredictionRepository : IKnockoutPredictionRepository
     public async Task<IEnumerable<KnockoutPrediction>> GetByUserIdAsync(Guid userId, CancellationToken ct = default) => await _context.KnockoutPredictions.Where(k => k.UserId == userId).ToListAsync(ct);
     public async Task AddAsync(KnockoutPrediction prediction, CancellationToken ct = default) => await _context.KnockoutPredictions.AddAsync(prediction, ct);
     public void Update(KnockoutPrediction prediction) => _context.KnockoutPredictions.Update(prediction);
+    public void RemoveRange(IEnumerable<KnockoutPrediction> predictions) => _context.KnockoutPredictions.RemoveRange(predictions);
 }
 
 public class TournamentRepository : ITournamentRepository

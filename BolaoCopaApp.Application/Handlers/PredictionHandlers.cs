@@ -10,7 +10,8 @@ namespace BolaoCopaApp.Application.Handlers;
 public class PredictionHandlers :
     IRequestHandler<SubmitPredictionCommand, bool>,
     IRequestHandler<SubmitGroupRankCommand, bool>,
-    IRequestHandler<SubmitKnockoutPredictionCommand, bool>
+    IRequestHandler<SubmitKnockoutPredictionCommand, bool>,
+    IRequestHandler<ClearKnockoutPredictionsCommand, bool>
 {
     private readonly IPredictionRepository _predictionRepo;
     private readonly IMatchRepository _matchRepo;
@@ -112,6 +113,14 @@ public class PredictionHandlers :
             };
             await _knockoutRepo.AddAsync(prediction, cancellationToken);
         }
+        await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(ClearKnockoutPredictionsCommand request, CancellationToken cancellationToken)
+    {
+        var existing = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        _knockoutRepo.RemoveRange(existing);
         await _uow.SaveChangesAsync(cancellationToken);
         return true;
     }

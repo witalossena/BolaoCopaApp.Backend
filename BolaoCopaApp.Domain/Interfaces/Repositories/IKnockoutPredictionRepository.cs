@@ -8,4 +8,5 @@ public interface IKnockoutPredictionRepository
     Task<IEnumerable<KnockoutPrediction>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task AddAsync(KnockoutPrediction prediction, CancellationToken cancellationToken = default);
     void Update(KnockoutPrediction prediction);
+    void RemoveRange(IEnumerable<KnockoutPrediction> predictions);
 }
