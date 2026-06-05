@@ -73,8 +73,9 @@ public class PredictionHandlers :
         var existing = await _groupRankRepo.GetByUserAndGroupAsync(request.UserId, request.Group, cancellationToken);
         if (existing != null)
         {
-            existing.FirstTeam = request.FirstTeam;
-            existing.SecondTeam = request.SecondTeam;
+            if (!string.IsNullOrEmpty(request.FirstTeam)) existing.FirstTeam = request.FirstTeam;
+            if (!string.IsNullOrEmpty(request.SecondTeam)) existing.SecondTeam = request.SecondTeam;
+            if (request.ThirdTeam != null) existing.ThirdTeam = request.ThirdTeam == "" ? null : request.ThirdTeam;
             _groupRankRepo.Update(existing);
         }
         else
@@ -84,7 +85,8 @@ public class PredictionHandlers :
                 UserId = request.UserId,
                 Group = request.Group,
                 FirstTeam = request.FirstTeam,
-                SecondTeam = request.SecondTeam
+                SecondTeam = request.SecondTeam,
+                ThirdTeam = string.IsNullOrEmpty(request.ThirdTeam) ? null : request.ThirdTeam
             };
             await _groupRankRepo.AddAsync(prediction, cancellationToken);
         }

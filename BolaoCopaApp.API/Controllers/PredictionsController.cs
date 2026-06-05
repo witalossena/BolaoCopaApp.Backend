@@ -55,7 +55,7 @@ public class PredictionsController : ControllerBase
     {
         try
         {
-            await _mediator.Send(new SubmitGroupRankCommand(GetUserId(), request.Group, request.FirstTeam, request.SecondTeam));
+            await _mediator.Send(new SubmitGroupRankCommand(GetUserId(), request.Group, request.FirstTeam, request.SecondTeam, request.ThirdTeam));
             return Ok(new { message = "Group rank prediction saved." });
         }
         catch (Exception ex)
