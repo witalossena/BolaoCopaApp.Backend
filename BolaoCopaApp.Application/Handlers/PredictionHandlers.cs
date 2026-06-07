@@ -75,6 +75,8 @@ public class PredictionHandlers :
         {
             existing.FirstTeam = request.FirstTeam;
             existing.SecondTeam = request.SecondTeam;
+            existing.ThirdTeam = request.ThirdTeam;
+            existing.FourthTeam = request.FourthTeam;
             _groupRankRepo.Update(existing);
         }
         else
@@ -84,7 +86,9 @@ public class PredictionHandlers :
                 UserId = request.UserId,
                 Group = request.Group,
                 FirstTeam = request.FirstTeam,
-                SecondTeam = request.SecondTeam
+                SecondTeam = request.SecondTeam,
+                ThirdTeam = request.ThirdTeam,
+                FourthTeam = request.FourthTeam
             };
             await _groupRankRepo.AddAsync(prediction, cancellationToken);
         }
