@@ -7,4 +7,5 @@ public interface ISpecialPredictionRepository
     Task<SpecialPrediction?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task AddAsync(SpecialPrediction prediction, CancellationToken cancellationToken = default);
     void Update(SpecialPrediction prediction);
+    void Remove(SpecialPrediction prediction);
 }

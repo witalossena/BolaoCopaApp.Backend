@@ -11,20 +11,23 @@ public class PredictionHandlers :
     IRequestHandler<SubmitPredictionCommand, bool>,
     IRequestHandler<SubmitGroupRankCommand, bool>,
     IRequestHandler<SubmitKnockoutPredictionCommand, bool>,
-    IRequestHandler<ClearKnockoutPredictionsCommand, bool>
+    IRequestHandler<ClearKnockoutPredictionsCommand, bool>,
+    IRequestHandler<ClearAllPredictionsCommand, bool>
 {
     private readonly IPredictionRepository _predictionRepo;
     private readonly IMatchRepository _matchRepo;
     private readonly IGroupRankPredictionRepository _groupRankRepo;
     private readonly IKnockoutPredictionRepository _knockoutRepo;
+    private readonly ISpecialPredictionRepository _specialRepo;
     private readonly PredictionValidationService _validationService;
     private readonly IUnitOfWork _uow;
 
     public PredictionHandlers(
-        IPredictionRepository predictionRepo, 
+        IPredictionRepository predictionRepo,
         IMatchRepository matchRepo,
         IGroupRankPredictionRepository groupRankRepo,
         IKnockoutPredictionRepository knockoutRepo,
+        ISpecialPredictionRepository specialRepo,
         PredictionValidationService validationService,
         IUnitOfWork uow)
     {
@@ -32,6 +35,7 @@ public class PredictionHandlers :
         _matchRepo = matchRepo;
         _groupRankRepo = groupRankRepo;
         _knockoutRepo = knockoutRepo;
+        _specialRepo = specialRepo;
         _validationService = validationService;
         _uow = uow;
     }
@@ -129,6 +133,24 @@ public class PredictionHandlers :
     {
         var existing = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         _knockoutRepo.RemoveRange(existing);
+        await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(ClearAllPredictionsCommand request, CancellationToken cancellationToken)
+    {
+        var matchPreds = await _predictionRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        _predictionRepo.RemoveRange(matchPreds);
+
+        var groupPreds = await _groupRankRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        _groupRankRepo.RemoveRange(groupPreds);
+
+        var knockoutPreds = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        _knockoutRepo.RemoveRange(knockoutPreds);
+
+        var special = await _specialRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        if (special != null) _specialRepo.Remove(special);
+
         await _uow.SaveChangesAsync(cancellationToken);
         return true;
     }

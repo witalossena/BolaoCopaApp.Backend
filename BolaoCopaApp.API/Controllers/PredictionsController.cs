@@ -78,6 +78,20 @@ public class PredictionsController : ControllerBase
         }
     }
 
+    [HttpDelete("all")]
+    public async Task<ActionResult> ClearAllPredictions()
+    {
+        try
+        {
+            await _mediator.Send(new ClearAllPredictionsCommand(GetUserId()));
+            return Ok(new { message = "All predictions cleared." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost("knockout")]
     public async Task<ActionResult> SubmitKnockoutPrediction([FromBody] KnockoutPredictionDto request)
     {

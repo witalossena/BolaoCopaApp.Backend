@@ -10,4 +10,5 @@ public interface IPredictionRepository
     Task<IEnumerable<Prediction>> GetByMatchIdAsync(Guid matchId, CancellationToken cancellationToken = default);
     Task AddAsync(Prediction prediction, CancellationToken cancellationToken = default);
     void Update(Prediction prediction);
+    void RemoveRange(IEnumerable<Prediction> predictions);
 }

@@ -8,4 +8,5 @@ public interface IGroupRankPredictionRepository
     Task<IEnumerable<GroupRankPrediction>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task AddAsync(GroupRankPrediction prediction, CancellationToken cancellationToken = default);
     void Update(GroupRankPrediction prediction);
+    void RemoveRange(IEnumerable<GroupRankPrediction> predictions);
 }

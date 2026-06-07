@@ -43,6 +43,7 @@ public class PredictionRepository : IPredictionRepository
     public async Task<IEnumerable<Prediction>> GetByMatchIdAsync(Guid matchId, CancellationToken ct = default) => await _context.Predictions.Where(p => p.MatchId == matchId).ToListAsync(ct);
     public async Task AddAsync(Prediction prediction, CancellationToken ct = default) => await _context.Predictions.AddAsync(prediction, ct);
     public void Update(Prediction prediction) => _context.Predictions.Update(prediction);
+    public void RemoveRange(IEnumerable<Prediction> predictions) => _context.Predictions.RemoveRange(predictions);
 }
 
 public class GroupRankPredictionRepository : IGroupRankPredictionRepository
@@ -54,6 +55,7 @@ public class GroupRankPredictionRepository : IGroupRankPredictionRepository
     public async Task<IEnumerable<GroupRankPrediction>> GetByUserIdAsync(Guid userId, CancellationToken ct = default) => await _context.GroupRankPredictions.Where(g => g.UserId == userId).ToListAsync(ct);
     public async Task AddAsync(GroupRankPrediction prediction, CancellationToken ct = default) => await _context.GroupRankPredictions.AddAsync(prediction, ct);
     public void Update(GroupRankPrediction prediction) => _context.GroupRankPredictions.Update(prediction);
+    public void RemoveRange(IEnumerable<GroupRankPrediction> predictions) => _context.GroupRankPredictions.RemoveRange(predictions);
 }
 
 public class SpecialPredictionRepository : ISpecialPredictionRepository
@@ -64,6 +66,7 @@ public class SpecialPredictionRepository : ISpecialPredictionRepository
     public async Task<SpecialPrediction?> GetByUserIdAsync(Guid userId, CancellationToken ct = default) => await _context.SpecialPredictions.FirstOrDefaultAsync(s => s.UserId == userId, ct);
     public async Task AddAsync(SpecialPrediction prediction, CancellationToken ct = default) => await _context.SpecialPredictions.AddAsync(prediction, ct);
     public void Update(SpecialPrediction prediction) => _context.SpecialPredictions.Update(prediction);
+    public void Remove(SpecialPrediction prediction) => _context.SpecialPredictions.Remove(prediction);
 }
 
 public class KnockoutPredictionRepository : IKnockoutPredictionRepository
