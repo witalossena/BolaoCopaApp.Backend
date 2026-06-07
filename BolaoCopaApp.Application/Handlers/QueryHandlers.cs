@@ -138,7 +138,7 @@ public class QueryHandlers :
         var knockoutPreds = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         var knockoutDtos = knockoutPreds
             .Where(k => matchMap.ContainsKey(k.MatchId))
-            .Select(k => new KnockoutPredictionSummaryDto(matchMap[k.MatchId], k.WinnerTeam));
+            .Select(k => new KnockoutPredictionSummaryDto(matchMap[k.MatchId], k.WinnerTeam, k.HomeScore, k.AwayScore));
 
         return new UserPredictionsDto(matchDtos, groupDtos, knockoutDtos);
     }

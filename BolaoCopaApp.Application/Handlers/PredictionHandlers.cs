@@ -105,6 +105,8 @@ public class PredictionHandlers :
         if (existing != null)
         {
             existing.WinnerTeam = request.WinnerTeam;
+            existing.HomeScore = request.HomeScore;
+            existing.AwayScore = request.AwayScore;
             _knockoutRepo.Update(existing);
         }
         else
@@ -113,7 +115,9 @@ public class PredictionHandlers :
             {
                 UserId = request.UserId,
                 MatchId = match.Id,
-                WinnerTeam = request.WinnerTeam
+                WinnerTeam = request.WinnerTeam,
+                HomeScore = request.HomeScore,
+                AwayScore = request.AwayScore
             };
             await _knockoutRepo.AddAsync(prediction, cancellationToken);
         }

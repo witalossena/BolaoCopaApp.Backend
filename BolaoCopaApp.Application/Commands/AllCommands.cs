@@ -9,7 +9,7 @@ public record LoginCommand(LoginRequest Request) : IRequest<AuthResponse>;
 public record SubmitPredictionCommand(Guid UserId, string MatchId, int HomeScore, int AwayScore) : IRequest<bool>;
 public record SubmitGroupRankCommand(Guid UserId, string Group, string FirstTeam, string SecondTeam, string? ThirdTeam, string? FourthTeam) : IRequest<bool>;
 public record SubmitSpecialPredictionCommand(Guid UserId, SpecialPredictionDto Prediction) : IRequest<bool>;
-public record SubmitKnockoutPredictionCommand(Guid UserId, string MatchId, string WinnerTeam) : IRequest<bool>;
+public record SubmitKnockoutPredictionCommand(Guid UserId, string MatchId, string WinnerTeam, int? HomeScore, int? AwayScore) : IRequest<bool>;
 public record ClearKnockoutPredictionsCommand(Guid UserId) : IRequest<bool>;
 
 public record RegisterMatchResultCommand(string MatchId, int HomeScore, int AwayScore) : IRequest<bool>;

@@ -6,6 +6,8 @@ public class KnockoutPrediction
     public Guid UserId { get; set; }
     public Guid MatchId { get; set; }
     public string WinnerTeam { get; set; } = string.Empty;
+    public int? HomeScore { get; set; }
+    public int? AwayScore { get; set; }
     public int Points { get; set; }
 
     public User User { get; set; } = default!;

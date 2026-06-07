@@ -68,9 +68,13 @@ public class ScoringService
         return score;
     }
 
-    public int CalculateKnockoutScore(string predictedWinner, string actualWinner)
+    public int CalculateKnockoutScore(string predictedWinner, int? predictedHome, int? predictedAway, string actualWinner, int? actualHome, int? actualAway)
     {
-        return predictedWinner == actualWinner ? 10 : 0;
+        if (predictedWinner != actualWinner) return 0;
+        if (predictedHome.HasValue && predictedAway.HasValue &&
+            actualHome.HasValue && actualAway.HasValue &&
+            predictedHome == actualHome && predictedAway == actualAway) return 20;
+        return 15;
     }
 
     public int CalculateSpecialScore(SpecialPrediction prediction, SpecialPrediction actual)
