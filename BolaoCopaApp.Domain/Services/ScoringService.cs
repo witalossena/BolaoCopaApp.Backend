@@ -38,14 +38,32 @@ public class ScoringService
         return 0; // Wrong everything
     }
 
-    public int CalculateGroupRankScore(string predictedFirst, string predictedSecond, string actualFirst, string actualSecond)
+    public int CalculateGroupRankScore(
+        string predictedFirst, string predictedSecond, string? predictedThird, string? predictedFourth,
+        string actualFirst, string actualSecond, string? actualThird, string? actualFourth)
     {
-        int score = 0;
-        if (predictedFirst == actualFirst) score += 10;
-        else if (predictedFirst == actualSecond) score += 5;
+        var actualQualified = new[] { actualFirst, actualSecond, actualThird, actualFourth }
+            .Where(t => t != null).ToHashSet()!;
 
-        if (predictedSecond == actualSecond) score += 10;
-        else if (predictedSecond == actualFirst) score += 5;
+        int score = 0;
+
+        if (predictedFirst == actualFirst) score += 20;
+        else if (actualQualified.Contains(predictedFirst)) score += 5;
+
+        if (predictedSecond == actualSecond) score += 20;
+        else if (actualQualified.Contains(predictedSecond)) score += 5;
+
+        if (predictedThird != null && actualThird != null)
+        {
+            if (predictedThird == actualThird) score += 20;
+            else if (actualQualified.Contains(predictedThird)) score += 5;
+        }
+
+        if (predictedFourth != null && actualFourth != null)
+        {
+            if (predictedFourth == actualFourth) score += 20;
+            else if (actualQualified.Contains(predictedFourth)) score += 5;
+        }
 
         return score;
     }
