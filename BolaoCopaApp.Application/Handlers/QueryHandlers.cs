@@ -176,6 +176,7 @@ public class QueryHandlers :
         var tournament = await _tournamentRepo.GetActiveTournamentAsync(cancellationToken);
         return new TournamentInfoDto(
             tournament?.CurrentPhase.ToString() ?? "GroupStage",
-            tournament?.PrizePool ?? 0);
+            tournament?.PrizePool ?? 0,
+            tournament?.ArePredictionsLocked ?? false);
     }
 }

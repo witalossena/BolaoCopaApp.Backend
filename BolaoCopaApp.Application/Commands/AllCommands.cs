@@ -25,3 +25,4 @@ public record ResetMatchResultCommand(string MatchId) : IRequest<bool>;
 public record ResetGroupResultCommand(string Group) : IRequest<bool>;
 public record SetTournamentPhaseCommand(string Phase) : IRequest<bool>;
 public record SetPrizePoolCommand(decimal Amount) : IRequest<bool>;
+public record LockAllPredictionsCommand(bool IsLocked) : IRequest<bool>;

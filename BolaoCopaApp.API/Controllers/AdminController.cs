@@ -152,6 +152,20 @@ public class AdminController : ControllerBase
         }
     }
 
+    [HttpPatch("tournament/lock-predictions")]
+    public async Task<ActionResult> LockAllPredictions([FromBody] bool isLocked)
+    {
+        try
+        {
+            await _mediator.Send(new LockAllPredictionsCommand(isLocked));
+            return Ok(new { message = isLocked ? "All predictions locked." : "All predictions unlocked." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost("calculate-group-scores")]
     public async Task<ActionResult> CalculateGroupScores()
     {

@@ -22,6 +22,7 @@ public class AdminHandlers :
     IRequestHandler<CalculateGroupRankScoresCommand, bool>,
     IRequestHandler<SetTournamentPhaseCommand, bool>,
     IRequestHandler<SetPrizePoolCommand, bool>,
+    IRequestHandler<LockAllPredictionsCommand, bool>,
     IRequestHandler<GetGroupResultsQuery, IEnumerable<GroupResultSummaryDto>>
 {
     private readonly IMatchRepository _matchRepo;
@@ -230,6 +231,16 @@ public class AdminHandlers :
         var tournament = await _tournamentRepo.GetActiveTournamentAsync(cancellationToken);
         if (tournament == null) throw new Exception("No active tournament found.");
         tournament.PrizePool = request.Amount;
+        _tournamentRepo.Update(tournament);
+        await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(LockAllPredictionsCommand request, CancellationToken cancellationToken)
+    {
+        var tournament = await _tournamentRepo.GetActiveTournamentAsync(cancellationToken);
+        if (tournament == null) throw new Exception("No active tournament found.");
+        tournament.ArePredictionsLocked = request.IsLocked;
         _tournamentRepo.Update(tournament);
         await _uow.SaveChangesAsync(cancellationToken);
         return true;
