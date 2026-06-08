@@ -11,7 +11,8 @@ public class QueryHandlers :
     IRequestHandler<GetAdminStatsQuery, AdminStatsDto>,
     IRequestHandler<GetUsersAdminQuery, IEnumerable<AdminUserDto>>,
     IRequestHandler<GetUserPredictionsQuery, UserPredictionsDto>,
-    IRequestHandler<GetUserHistoryQuery, IEnumerable<PredictionHistoryItemDto>>
+    IRequestHandler<GetUserHistoryQuery, IEnumerable<PredictionHistoryItemDto>>,
+    IRequestHandler<GetTournamentPhaseQuery, string>
 {
     private readonly IMatchRepository _matchRepo;
     private readonly IUserRepository _userRepo;
@@ -19,14 +20,16 @@ public class QueryHandlers :
     private readonly IGroupRankPredictionRepository _groupRankRepo;
     private readonly ISpecialPredictionRepository _specialRepo;
     private readonly IKnockoutPredictionRepository _knockoutRepo;
+    private readonly ITournamentRepository _tournamentRepo;
 
     public QueryHandlers(
-        IMatchRepository matchRepo, 
+        IMatchRepository matchRepo,
         IUserRepository userRepo,
         IPredictionRepository predictionRepo,
         IGroupRankPredictionRepository groupRankRepo,
         ISpecialPredictionRepository specialRepo,
-        IKnockoutPredictionRepository knockoutRepo)
+        IKnockoutPredictionRepository knockoutRepo,
+        ITournamentRepository tournamentRepo)
     {
         _matchRepo = matchRepo;
         _userRepo = userRepo;
@@ -34,6 +37,7 @@ public class QueryHandlers :
         _groupRankRepo = groupRankRepo;
         _specialRepo = specialRepo;
         _knockoutRepo = knockoutRepo;
+        _tournamentRepo = tournamentRepo;
     }
 
     public async Task<AdminStatsDto> Handle(GetAdminStatsQuery request, CancellationToken cancellationToken)
@@ -165,5 +169,11 @@ public class QueryHandlers :
                     p.Points, m.MatchDate);
             })
             .OrderByDescending(x => x.MatchDate);
+    }
+
+    public async Task<string> Handle(GetTournamentPhaseQuery request, CancellationToken cancellationToken)
+    {
+        var tournament = await _tournamentRepo.GetActiveTournamentAsync(cancellationToken);
+        return tournament?.CurrentPhase.ToString() ?? "GroupStage";
     }
 }

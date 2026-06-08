@@ -124,6 +124,20 @@ public class AdminController : ControllerBase
         return Ok(new { message = "Group result reset." });
     }
 
+    [HttpPatch("tournament/phase")]
+    public async Task<ActionResult> SetTournamentPhase([FromBody] string phase)
+    {
+        try
+        {
+            await _mediator.Send(new SetTournamentPhaseCommand(phase));
+            return Ok(new { message = $"Phase set to {phase}." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost("calculate-group-scores")]
     public async Task<ActionResult> CalculateGroupScores()
     {

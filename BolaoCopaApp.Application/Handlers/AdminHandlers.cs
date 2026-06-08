@@ -20,6 +20,7 @@ public class AdminHandlers :
     IRequestHandler<SetGroupResultCommand, bool>,
     IRequestHandler<ResetGroupResultCommand, bool>,
     IRequestHandler<CalculateGroupRankScoresCommand, bool>,
+    IRequestHandler<SetTournamentPhaseCommand, bool>,
     IRequestHandler<GetGroupResultsQuery, IEnumerable<GroupResultSummaryDto>>
 {
     private readonly IMatchRepository _matchRepo;
@@ -27,6 +28,7 @@ public class AdminHandlers :
     private readonly IPredictionRepository _predictionRepo;
     private readonly IGroupRankPredictionRepository _groupRankRepo;
     private readonly IGroupResultRepository _groupResultRepo;
+    private readonly ITournamentRepository _tournamentRepo;
     private readonly ScoringService _scoringService;
     private readonly IUnitOfWork _uow;
 
@@ -36,6 +38,7 @@ public class AdminHandlers :
         IPredictionRepository predictionRepo,
         IGroupRankPredictionRepository groupRankRepo,
         IGroupResultRepository groupResultRepo,
+        ITournamentRepository tournamentRepo,
         ScoringService scoringService,
         IUnitOfWork uow)
     {
@@ -44,6 +47,7 @@ public class AdminHandlers :
         _predictionRepo = predictionRepo;
         _groupRankRepo = groupRankRepo;
         _groupResultRepo = groupResultRepo;
+        _tournamentRepo = tournamentRepo;
         _scoringService = scoringService;
         _uow = uow;
     }
@@ -204,6 +208,18 @@ public class AdminHandlers :
                 _groupRankRepo.Update(pred);
             }
         }
+        await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(SetTournamentPhaseCommand request, CancellationToken cancellationToken)
+    {
+        var tournament = await _tournamentRepo.GetActiveTournamentAsync(cancellationToken);
+        if (tournament == null) throw new Exception("No active tournament found.");
+        if (!Enum.TryParse<TournamentPhase>(request.Phase, out var phase))
+            throw new Exception("Invalid phase.");
+        tournament.CurrentPhase = phase;
+        _tournamentRepo.Update(tournament);
         await _uow.SaveChangesAsync(cancellationToken);
         return true;
     }

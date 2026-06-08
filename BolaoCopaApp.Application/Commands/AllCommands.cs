@@ -23,3 +23,4 @@ public record UpdateMatchTeamsCommand(string MatchId, string HomeTeam, string Aw
 public record SeedMatchesCommand() : IRequest<bool>;
 public record ResetMatchResultCommand(string MatchId) : IRequest<bool>;
 public record ResetGroupResultCommand(string Group) : IRequest<bool>;
+public record SetTournamentPhaseCommand(string Phase) : IRequest<bool>;

@@ -11,3 +11,4 @@ public record GetUsersAdminQuery() : IRequest<IEnumerable<AdminUserDto>>;
 public record GetAdminStatsQuery() : IRequest<AdminStatsDto>;
 public record GetUserHistoryQuery(Guid UserId) : IRequest<IEnumerable<PredictionHistoryItemDto>>;
 public record GetGroupResultsQuery() : IRequest<IEnumerable<GroupResultSummaryDto>>;
+public record GetTournamentPhaseQuery() : IRequest<string>;
