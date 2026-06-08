@@ -1,4 +1,7 @@
 using BolaoCopaApp.Application.Commands;
+using BolaoCopaApp.Application.DTOs;
+using BolaoCopaApp.Application.Queries;
+using BolaoCopaApp.Domain.Entities;
 using BolaoCopaApp.Domain.Interfaces;
 using BolaoCopaApp.Domain.Interfaces.Repositories;
 using BolaoCopaApp.Domain.Services;
@@ -12,11 +15,16 @@ public class AdminHandlers :
     IRequestHandler<ToggleUserPaymentCommand, bool>,
     IRequestHandler<CalculateAllScoresCommand, bool>,
     IRequestHandler<LockMatchCommand, bool>,
-    IRequestHandler<UpdateMatchTeamsCommand, bool>
+    IRequestHandler<UpdateMatchTeamsCommand, bool>,
+    IRequestHandler<SetGroupResultCommand, bool>,
+    IRequestHandler<CalculateGroupRankScoresCommand, bool>,
+    IRequestHandler<GetGroupResultsQuery, IEnumerable<GroupResultSummaryDto>>
 {
     private readonly IMatchRepository _matchRepo;
     private readonly IUserRepository _userRepo;
     private readonly IPredictionRepository _predictionRepo;
+    private readonly IGroupRankPredictionRepository _groupRankRepo;
+    private readonly IGroupResultRepository _groupResultRepo;
     private readonly ScoringService _scoringService;
     private readonly IUnitOfWork _uow;
 
@@ -24,12 +32,16 @@ public class AdminHandlers :
         IMatchRepository matchRepo,
         IUserRepository userRepo,
         IPredictionRepository predictionRepo,
+        IGroupRankPredictionRepository groupRankRepo,
+        IGroupResultRepository groupResultRepo,
         ScoringService scoringService,
         IUnitOfWork uow)
     {
         _matchRepo = matchRepo;
         _userRepo = userRepo;
         _predictionRepo = predictionRepo;
+        _groupRankRepo = groupRankRepo;
+        _groupResultRepo = groupResultRepo;
         _scoringService = scoringService;
         _uow = uow;
     }
@@ -110,5 +122,55 @@ public class AdminHandlers :
         await _uow.SaveChangesAsync(cancellationToken);
 
         return true;
+    }
+
+    public async Task<bool> Handle(SetGroupResultCommand request, CancellationToken cancellationToken)
+    {
+        var existing = await _groupResultRepo.GetByGroupAsync(request.Group, cancellationToken);
+        if (existing != null)
+        {
+            existing.FirstTeam = request.FirstTeam;
+            existing.SecondTeam = request.SecondTeam;
+            existing.ThirdTeam = request.ThirdTeam;
+            existing.FourthTeam = request.FourthTeam;
+            _groupResultRepo.Update(existing);
+        }
+        else
+        {
+            await _groupResultRepo.AddAsync(new GroupResult
+            {
+                Group = request.Group,
+                FirstTeam = request.FirstTeam,
+                SecondTeam = request.SecondTeam,
+                ThirdTeam = request.ThirdTeam,
+                FourthTeam = request.FourthTeam
+            }, cancellationToken);
+        }
+        await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(CalculateGroupRankScoresCommand request, CancellationToken cancellationToken)
+    {
+        var allResults = await _groupResultRepo.GetAllAsync(cancellationToken);
+        foreach (var result in allResults)
+        {
+            var predictions = await _groupRankRepo.GetByGroupAsync(result.Group, cancellationToken);
+            foreach (var pred in predictions)
+            {
+                pred.Points = _scoringService.CalculateGroupRankScore(
+                    pred.FirstTeam, pred.SecondTeam, pred.ThirdTeam, pred.FourthTeam,
+                    result.FirstTeam, result.SecondTeam, result.ThirdTeam, result.FourthTeam);
+                _groupRankRepo.Update(pred);
+            }
+        }
+        await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<IEnumerable<GroupResultSummaryDto>> Handle(GetGroupResultsQuery request, CancellationToken cancellationToken)
+    {
+        var results = await _groupResultRepo.GetAllAsync(cancellationToken);
+        return results.Select(r => new GroupResultSummaryDto(r.Group, r.FirstTeam, r.SecondTeam, r.ThirdTeam, r.FourthTeam));
     }
 }

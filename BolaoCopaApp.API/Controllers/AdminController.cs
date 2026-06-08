@@ -81,4 +81,32 @@ public class AdminController : ControllerBase
         await _mediator.Send(new ToggleUserPaymentCommand(id, isPaid));
         return Ok(new { message = "Payment status updated." });
     }
+
+    [HttpGet("group-results")]
+    public async Task<ActionResult<IEnumerable<GroupResultSummaryDto>>> GetGroupResults()
+    {
+        var results = await _mediator.Send(new GetGroupResultsQuery());
+        return Ok(results);
+    }
+
+    [HttpPost("group-result")]
+    public async Task<ActionResult> SetGroupResult([FromBody] GroupResultDto dto)
+    {
+        try
+        {
+            await _mediator.Send(new SetGroupResultCommand(dto.Group, dto.FirstTeam, dto.SecondTeam, dto.ThirdTeam, dto.FourthTeam));
+            return Ok(new { message = "Group result saved." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("calculate-group-scores")]
+    public async Task<ActionResult> CalculateGroupScores()
+    {
+        await _mediator.Send(new CalculateGroupRankScoresCommand());
+        return Ok(new { message = "Group rank scores calculated." });
+    }
 }

@@ -53,6 +53,7 @@ public class GroupRankPredictionRepository : IGroupRankPredictionRepository
 
     public async Task<GroupRankPrediction?> GetByUserAndGroupAsync(Guid userId, string group, CancellationToken ct = default) => await _context.GroupRankPredictions.FirstOrDefaultAsync(g => g.UserId == userId && g.Group == group, ct);
     public async Task<IEnumerable<GroupRankPrediction>> GetByUserIdAsync(Guid userId, CancellationToken ct = default) => await _context.GroupRankPredictions.Where(g => g.UserId == userId).ToListAsync(ct);
+    public async Task<IEnumerable<GroupRankPrediction>> GetByGroupAsync(string group, CancellationToken ct = default) => await _context.GroupRankPredictions.Where(g => g.Group == group).ToListAsync(ct);
     public async Task AddAsync(GroupRankPrediction prediction, CancellationToken ct = default) => await _context.GroupRankPredictions.AddAsync(prediction, ct);
     public void Update(GroupRankPrediction prediction) => _context.GroupRankPredictions.Update(prediction);
     public void RemoveRange(IEnumerable<GroupRankPrediction> predictions) => _context.GroupRankPredictions.RemoveRange(predictions);
@@ -79,6 +80,20 @@ public class KnockoutPredictionRepository : IKnockoutPredictionRepository
     public async Task AddAsync(KnockoutPrediction prediction, CancellationToken ct = default) => await _context.KnockoutPredictions.AddAsync(prediction, ct);
     public void Update(KnockoutPrediction prediction) => _context.KnockoutPredictions.Update(prediction);
     public void RemoveRange(IEnumerable<KnockoutPrediction> predictions) => _context.KnockoutPredictions.RemoveRange(predictions);
+}
+
+public class GroupResultRepository : IGroupResultRepository
+{
+    private readonly BolaoDbContext _context;
+    public GroupResultRepository(BolaoDbContext context) => _context = context;
+
+    public async Task<GroupResult?> GetByGroupAsync(string group, CancellationToken ct = default) =>
+        await _context.GroupResults.FirstOrDefaultAsync(g => g.Group == group, ct);
+    public async Task<IEnumerable<GroupResult>> GetAllAsync(CancellationToken ct = default) =>
+        await _context.GroupResults.ToListAsync(ct);
+    public async Task AddAsync(GroupResult result, CancellationToken ct = default) =>
+        await _context.GroupResults.AddAsync(result, ct);
+    public void Update(GroupResult result) => _context.GroupResults.Update(result);
 }
 
 public class TournamentRepository : ITournamentRepository

@@ -24,6 +24,8 @@ public record GroupRankSummaryDto(string Group, string FirstTeam, string SecondT
 public record KnockoutPredictionSummaryDto(string ExternalId, string WinnerTeam, int? HomeScore, int? AwayScore);
 public record UserPredictionsDto(IEnumerable<MatchPredictionSummaryDto> MatchPredictions, IEnumerable<GroupRankSummaryDto> GroupRanks, IEnumerable<KnockoutPredictionSummaryDto> KnockoutPredictions);
 
+public record GroupResultDto(string Group, string FirstTeam, string SecondTeam, string? ThirdTeam, string? FourthTeam);
+public record GroupResultSummaryDto(string Group, string FirstTeam, string SecondTeam, string? ThirdTeam, string? FourthTeam);
 public record UpdateMatchTeamsDto(string HomeTeam, string AwayTeam);
 public class MatchResultRequestDto
 {

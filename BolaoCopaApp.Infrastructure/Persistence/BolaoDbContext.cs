@@ -16,6 +16,7 @@ public class BolaoDbContext : DbContext, IUnitOfWork
     public DbSet<SpecialPrediction> SpecialPredictions => Set<SpecialPrediction>();
     public DbSet<KnockoutPrediction> KnockoutPredictions => Set<KnockoutPrediction>();
     public DbSet<Tournament> Tournaments => Set<Tournament>();
+    public DbSet<GroupResult> GroupResults => Set<GroupResult>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
