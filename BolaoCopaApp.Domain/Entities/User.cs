@@ -11,6 +11,7 @@ public class User
     public Email Email { get; set; } = default!;
     public string PasswordHash { get; set; } = string.Empty;
     public bool IsPaid { get; set; }
+    public decimal PaidAmount { get; set; } = 0;
     public Role Role { get; set; } = Role.Player;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

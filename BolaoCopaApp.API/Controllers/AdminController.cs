@@ -166,6 +166,20 @@ public class AdminController : ControllerBase
         }
     }
 
+    [HttpPost("confirm-payment")]
+    public async Task<ActionResult> ConfirmPayment([FromBody] ConfirmPaymentRequest request)
+    {
+        try
+        {
+            await _mediator.Send(new ConfirmPaymentCommand(request.Handle, request.Amount));
+            return Ok(new { message = "Payment confirmed and prize pool updated." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost("calculate-group-scores")]
     public async Task<ActionResult> CalculateGroupScores()
     {

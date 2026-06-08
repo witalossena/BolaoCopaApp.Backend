@@ -23,6 +23,7 @@ public class AdminHandlers :
     IRequestHandler<SetTournamentPhaseCommand, bool>,
     IRequestHandler<SetPrizePoolCommand, bool>,
     IRequestHandler<LockAllPredictionsCommand, bool>,
+    IRequestHandler<ConfirmPaymentCommand, bool>,
     IRequestHandler<GetGroupResultsQuery, IEnumerable<GroupResultSummaryDto>>
 {
     private readonly IMatchRepository _matchRepo;
@@ -241,6 +242,44 @@ public class AdminHandlers :
         var tournament = await _tournamentRepo.GetActiveTournamentAsync(cancellationToken);
         if (tournament == null) throw new Exception("No active tournament found.");
         tournament.ArePredictionsLocked = request.IsLocked;
+        _tournamentRepo.Update(tournament);
+        await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(ConfirmPaymentCommand request, CancellationToken cancellationToken)
+    {
+        var user = await _userRepo.GetByHandleAsync(request.Handle, cancellationToken);
+        if (user == null) throw new Exception("User not found.");
+
+        var tournament = await _tournamentRepo.GetActiveTournamentAsync(cancellationToken);
+        if (tournament == null) throw new Exception("No active tournament found.");
+
+        if (request.Amount <= 0)
+        {
+            if (user.IsPaid)
+            {
+                tournament.PrizePool -= user.PaidAmount;
+                user.IsPaid = false;
+                user.PaidAmount = 0;
+            }
+        }
+        else
+        {
+            if (user.IsPaid)
+            {
+                tournament.PrizePool = tournament.PrizePool - user.PaidAmount + request.Amount;
+            }
+            else
+            {
+                tournament.PrizePool += request.Amount;
+            }
+            
+            user.IsPaid = true;
+            user.PaidAmount = request.Amount;
+        }
+
+        _userRepo.Update(user);
         _tournamentRepo.Update(tournament);
         await _uow.SaveChangesAsync(cancellationToken);
         return true;

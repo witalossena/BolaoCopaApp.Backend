@@ -26,3 +26,4 @@ public record ResetGroupResultCommand(string Group) : IRequest<bool>;
 public record SetTournamentPhaseCommand(string Phase) : IRequest<bool>;
 public record SetPrizePoolCommand(decimal Amount) : IRequest<bool>;
 public record LockAllPredictionsCommand(bool IsLocked) : IRequest<bool>;
+public record ConfirmPaymentCommand(string Handle, decimal Amount) : IRequest<bool>;

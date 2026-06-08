@@ -36,6 +36,8 @@ public class MatchResultRequestDto
 
 public record TournamentInfoDto(string Phase, decimal PrizePool, bool ArePredictionsLocked);
 
+public record ConfirmPaymentRequest(string Handle, decimal Amount);
+
 public record PredictionHistoryItemDto(
     string HomeTeam, string AwayTeam, string Group,
     int PredictedHome, int PredictedAway,
