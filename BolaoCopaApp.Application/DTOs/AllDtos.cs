@@ -20,7 +20,7 @@ public record AdminUserDto(Guid Id, string Name, string Handle, int TotalPts, bo
 public record AdminStatsDto(int TotalUsers, int PaidCount, int PendingCount, int TotalMatches);
 
 public record MatchPredictionSummaryDto(string ExternalId, int HomeScore, int AwayScore);
-public record GroupRankSummaryDto(string Group, string FirstTeam, string SecondTeam, string? ThirdTeam, string? FourthTeam);
+public record GroupRankSummaryDto(string Group, string FirstTeam, string SecondTeam, string? ThirdTeam, string? FourthTeam, int Points);
 public record KnockoutPredictionSummaryDto(string ExternalId, string WinnerTeam, int? HomeScore, int? AwayScore);
 public record UserPredictionsDto(IEnumerable<MatchPredictionSummaryDto> MatchPredictions, IEnumerable<GroupRankSummaryDto> GroupRanks, IEnumerable<KnockoutPredictionSummaryDto> KnockoutPredictions);
 
