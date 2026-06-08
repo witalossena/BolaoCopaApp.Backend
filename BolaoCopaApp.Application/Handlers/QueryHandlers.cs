@@ -69,7 +69,7 @@ public class QueryHandlers :
             result.Add(new AdminUserDto(user.Id, user.Name, user.Handle.Value, totalPts, user.IsPaid));
         }
 
-        return result.OrderBy(u => u.Name);
+        return result.OrderByDescending(u => u.TotalPts).ThenBy(u => u.Name);
     }
 
     public async Task<IEnumerable<RankingEntryDto>> Handle(GetRankingQuery request, CancellationToken cancellationToken)
