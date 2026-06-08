@@ -47,6 +47,20 @@ public class AdminController : ControllerBase
         }
     }
 
+    [HttpDelete("matches/{id}/result")]
+    public async Task<ActionResult> ResetMatchResult(string id)
+    {
+        try
+        {
+            await _mediator.Send(new ResetMatchResultCommand(id));
+            return Ok(new { message = "Match result reset." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPatch("matches/{id}/teams")]
     public async Task<ActionResult> UpdateMatchTeams(string id, [FromBody] UpdateMatchTeamsDto dto)
     {

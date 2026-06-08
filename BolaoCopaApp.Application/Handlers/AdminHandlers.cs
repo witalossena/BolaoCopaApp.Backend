@@ -12,6 +12,7 @@ namespace BolaoCopaApp.Application.Handlers;
 
 public class AdminHandlers :
     IRequestHandler<RegisterMatchResultCommand, bool>,
+    IRequestHandler<ResetMatchResultCommand, bool>,
     IRequestHandler<ToggleUserPaymentCommand, bool>,
     IRequestHandler<CalculateAllScoresCommand, bool>,
     IRequestHandler<LockMatchCommand, bool>,
@@ -58,6 +59,27 @@ public class AdminHandlers :
         _matchRepo.Update(match);
         await _uow.SaveChangesAsync(cancellationToken);
 
+        return true;
+    }
+
+    public async Task<bool> Handle(ResetMatchResultCommand request, CancellationToken cancellationToken)
+    {
+        var match = await _matchRepo.GetByIdAsync(Guid.Parse(request.MatchId), cancellationToken);
+        if (match == null) throw new Exception("Match not found");
+
+        match.HomeScore = null;
+        match.AwayScore = null;
+        match.Status = MatchStatus.Open;
+
+        var predictions = await _predictionRepo.GetByMatchIdAsync(match.Id, cancellationToken);
+        foreach (var pred in predictions)
+        {
+            pred.Points = 0;
+            _predictionRepo.Update(pred);
+        }
+
+        _matchRepo.Update(match);
+        await _uow.SaveChangesAsync(cancellationToken);
         return true;
     }
 
