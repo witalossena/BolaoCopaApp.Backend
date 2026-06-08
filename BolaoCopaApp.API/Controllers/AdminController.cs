@@ -117,6 +117,13 @@ public class AdminController : ControllerBase
         }
     }
 
+    [HttpDelete("group-result/{group}")]
+    public async Task<ActionResult> ResetGroupResult(string group)
+    {
+        await _mediator.Send(new ResetGroupResultCommand(group));
+        return Ok(new { message = "Group result reset." });
+    }
+
     [HttpPost("calculate-group-scores")]
     public async Task<ActionResult> CalculateGroupScores()
     {

@@ -18,6 +18,7 @@ public class AdminHandlers :
     IRequestHandler<LockMatchCommand, bool>,
     IRequestHandler<UpdateMatchTeamsCommand, bool>,
     IRequestHandler<SetGroupResultCommand, bool>,
+    IRequestHandler<ResetGroupResultCommand, bool>,
     IRequestHandler<CalculateGroupRankScoresCommand, bool>,
     IRequestHandler<GetGroupResultsQuery, IEnumerable<GroupResultSummaryDto>>
 {
@@ -168,6 +169,23 @@ public class AdminHandlers :
                 FourthTeam = request.FourthTeam
             }, cancellationToken);
         }
+        await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(ResetGroupResultCommand request, CancellationToken cancellationToken)
+    {
+        var existing = await _groupResultRepo.GetByGroupAsync(request.Group, cancellationToken);
+        if (existing == null) return true;
+
+        var predictions = await _groupRankRepo.GetByGroupAsync(request.Group, cancellationToken);
+        foreach (var pred in predictions)
+        {
+            pred.Points = 0;
+            _groupRankRepo.Update(pred);
+        }
+
+        _groupResultRepo.Remove(existing);
         await _uow.SaveChangesAsync(cancellationToken);
         return true;
     }

@@ -8,4 +8,5 @@ public interface IGroupResultRepository
     Task<IEnumerable<GroupResult>> GetAllAsync(CancellationToken ct = default);
     Task AddAsync(GroupResult result, CancellationToken ct = default);
     void Update(GroupResult result);
+    void Remove(GroupResult result);
 }

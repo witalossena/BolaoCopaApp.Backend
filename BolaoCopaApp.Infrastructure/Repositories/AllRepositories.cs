@@ -94,6 +94,7 @@ public class GroupResultRepository : IGroupResultRepository
     public async Task AddAsync(GroupResult result, CancellationToken ct = default) =>
         await _context.GroupResults.AddAsync(result, ct);
     public void Update(GroupResult result) => _context.GroupResults.Update(result);
+    public void Remove(GroupResult result) => _context.GroupResults.Remove(result);
 }
 
 public class TournamentRepository : ITournamentRepository

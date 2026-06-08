@@ -22,3 +22,4 @@ public record LockMatchCommand(string MatchId, bool IsLocked) : IRequest<bool>;
 public record UpdateMatchTeamsCommand(string MatchId, string HomeTeam, string AwayTeam) : IRequest<bool>;
 public record SeedMatchesCommand() : IRequest<bool>;
 public record ResetMatchResultCommand(string MatchId) : IRequest<bool>;
+public record ResetGroupResultCommand(string Group) : IRequest<bool>;
