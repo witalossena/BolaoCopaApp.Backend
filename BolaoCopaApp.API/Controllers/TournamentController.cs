@@ -1,3 +1,4 @@
+using BolaoCopaApp.Application.DTOs;
 using BolaoCopaApp.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +16,10 @@ public class TournamentController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet("phase")]
-    public async Task<ActionResult<string>> GetPhase()
+    [HttpGet("info")]
+    public async Task<ActionResult<TournamentInfoDto>> GetInfo()
     {
-        var phase = await _mediator.Send(new GetTournamentPhaseQuery());
-        return Ok(phase);
+        var info = await _mediator.Send(new GetTournamentInfoQuery());
+        return Ok(info);
     }
 }

@@ -124,6 +124,20 @@ public class AdminController : ControllerBase
         return Ok(new { message = "Group result reset." });
     }
 
+    [HttpPatch("tournament/prize-pool")]
+    public async Task<ActionResult> SetPrizePool([FromBody] decimal amount)
+    {
+        try
+        {
+            await _mediator.Send(new SetPrizePoolCommand(amount));
+            return Ok(new { message = "Prize pool updated." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPatch("tournament/phase")]
     public async Task<ActionResult> SetTournamentPhase([FromBody] string phase)
     {

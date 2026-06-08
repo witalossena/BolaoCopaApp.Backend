@@ -12,7 +12,7 @@ public class QueryHandlers :
     IRequestHandler<GetUsersAdminQuery, IEnumerable<AdminUserDto>>,
     IRequestHandler<GetUserPredictionsQuery, UserPredictionsDto>,
     IRequestHandler<GetUserHistoryQuery, IEnumerable<PredictionHistoryItemDto>>,
-    IRequestHandler<GetTournamentPhaseQuery, string>
+    IRequestHandler<GetTournamentInfoQuery, TournamentInfoDto>
 {
     private readonly IMatchRepository _matchRepo;
     private readonly IUserRepository _userRepo;
@@ -171,9 +171,11 @@ public class QueryHandlers :
             .OrderByDescending(x => x.MatchDate);
     }
 
-    public async Task<string> Handle(GetTournamentPhaseQuery request, CancellationToken cancellationToken)
+    public async Task<TournamentInfoDto> Handle(GetTournamentInfoQuery request, CancellationToken cancellationToken)
     {
         var tournament = await _tournamentRepo.GetActiveTournamentAsync(cancellationToken);
-        return tournament?.CurrentPhase.ToString() ?? "GroupStage";
+        return new TournamentInfoDto(
+            tournament?.CurrentPhase.ToString() ?? "GroupStage",
+            tournament?.PrizePool ?? 0);
     }
 }

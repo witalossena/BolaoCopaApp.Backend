@@ -34,6 +34,8 @@ public class MatchResultRequestDto
     public int AwayScore { get; set; }
 }
 
+public record TournamentInfoDto(string Phase, decimal PrizePool);
+
 public record PredictionHistoryItemDto(
     string HomeTeam, string AwayTeam, string Group,
     int PredictedHome, int PredictedAway,

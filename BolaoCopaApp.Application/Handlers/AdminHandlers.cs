@@ -21,6 +21,7 @@ public class AdminHandlers :
     IRequestHandler<ResetGroupResultCommand, bool>,
     IRequestHandler<CalculateGroupRankScoresCommand, bool>,
     IRequestHandler<SetTournamentPhaseCommand, bool>,
+    IRequestHandler<SetPrizePoolCommand, bool>,
     IRequestHandler<GetGroupResultsQuery, IEnumerable<GroupResultSummaryDto>>
 {
     private readonly IMatchRepository _matchRepo;
@@ -219,6 +220,16 @@ public class AdminHandlers :
         if (!Enum.TryParse<TournamentPhase>(request.Phase, out var phase))
             throw new Exception("Invalid phase.");
         tournament.CurrentPhase = phase;
+        _tournamentRepo.Update(tournament);
+        await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(SetPrizePoolCommand request, CancellationToken cancellationToken)
+    {
+        var tournament = await _tournamentRepo.GetActiveTournamentAsync(cancellationToken);
+        if (tournament == null) throw new Exception("No active tournament found.");
+        tournament.PrizePool = request.Amount;
         _tournamentRepo.Update(tournament);
         await _uow.SaveChangesAsync(cancellationToken);
         return true;
