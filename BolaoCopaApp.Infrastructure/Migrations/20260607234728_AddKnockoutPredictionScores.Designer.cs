@@ -3,6 +3,7 @@ using System;
 using BolaoCopaApp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BolaoCopaApp.Infrastructure.Migrations
 {
     [DbContext(typeof(BolaoDbContext))]
-    partial class BolaoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260607234728_AddKnockoutPredictionScores")]
+    partial class AddKnockoutPredictionScores
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,35 +61,6 @@ namespace BolaoCopaApp.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("GroupRankPredictions");
-                });
-
-            modelBuilder.Entity("BolaoCopaApp.Domain.Entities.GroupResult", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("FirstTeam")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FourthTeam")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Group")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("SecondTeam")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ThirdTeam")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("GroupResults");
                 });
 
             modelBuilder.Entity("BolaoCopaApp.Domain.Entities.KnockoutPrediction", b =>
@@ -256,17 +230,11 @@ namespace BolaoCopaApp.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("ArePredictionsLocked")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("CurrentPhase")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
-
-                    b.Property<decimal>("PrizePool")
-                        .HasColumnType("numeric");
 
                     b.Property<int>("Season")
                         .HasColumnType("integer");
@@ -301,9 +269,6 @@ namespace BolaoCopaApp.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<decimal>("PaidAmount")
-                        .HasColumnType("numeric");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

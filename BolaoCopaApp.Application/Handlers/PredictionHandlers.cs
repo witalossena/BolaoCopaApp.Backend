@@ -11,20 +11,25 @@ public class PredictionHandlers :
     IRequestHandler<SubmitPredictionCommand, bool>,
     IRequestHandler<SubmitGroupRankCommand, bool>,
     IRequestHandler<SubmitKnockoutPredictionCommand, bool>,
-    IRequestHandler<ClearKnockoutPredictionsCommand, bool>
+    IRequestHandler<ClearKnockoutPredictionsCommand, bool>,
+    IRequestHandler<ClearAllPredictionsCommand, bool>
 {
     private readonly IPredictionRepository _predictionRepo;
     private readonly IMatchRepository _matchRepo;
     private readonly IGroupRankPredictionRepository _groupRankRepo;
     private readonly IKnockoutPredictionRepository _knockoutRepo;
+    private readonly ISpecialPredictionRepository _specialRepo;
+    private readonly ITournamentRepository _tournamentRepo;
     private readonly PredictionValidationService _validationService;
     private readonly IUnitOfWork _uow;
 
     public PredictionHandlers(
-        IPredictionRepository predictionRepo, 
+        IPredictionRepository predictionRepo,
         IMatchRepository matchRepo,
         IGroupRankPredictionRepository groupRankRepo,
         IKnockoutPredictionRepository knockoutRepo,
+        ISpecialPredictionRepository specialRepo,
+        ITournamentRepository tournamentRepo,
         PredictionValidationService validationService,
         IUnitOfWork uow)
     {
@@ -32,12 +37,22 @@ public class PredictionHandlers :
         _matchRepo = matchRepo;
         _groupRankRepo = groupRankRepo;
         _knockoutRepo = knockoutRepo;
+        _specialRepo = specialRepo;
+        _tournamentRepo = tournamentRepo;
         _validationService = validationService;
         _uow = uow;
     }
 
+    private async Task EnsureNotLocked(CancellationToken ct)
+    {
+        var tournament = await _tournamentRepo.GetActiveTournamentAsync(ct);
+        if (tournament != null && tournament.ArePredictionsLocked)
+            throw new Exception("All predictions are currently locked by admin.");
+    }
+
     public async Task<bool> Handle(SubmitPredictionCommand request, CancellationToken cancellationToken)
     {
+        await EnsureNotLocked(cancellationToken);
         var match = await _matchRepo.GetByIdAsync(Guid.Parse(request.MatchId), cancellationToken);
         if (match == null) throw new Exception("Match not found");
 
@@ -70,12 +85,14 @@ public class PredictionHandlers :
 
     public async Task<bool> Handle(SubmitGroupRankCommand request, CancellationToken cancellationToken)
     {
+        await EnsureNotLocked(cancellationToken);
         var existing = await _groupRankRepo.GetByUserAndGroupAsync(request.UserId, request.Group, cancellationToken);
         if (existing != null)
         {
-            if (!string.IsNullOrEmpty(request.FirstTeam)) existing.FirstTeam = request.FirstTeam;
-            if (!string.IsNullOrEmpty(request.SecondTeam)) existing.SecondTeam = request.SecondTeam;
-            if (request.ThirdTeam != null) existing.ThirdTeam = request.ThirdTeam == "" ? null : request.ThirdTeam;
+            existing.FirstTeam = request.FirstTeam;
+            existing.SecondTeam = request.SecondTeam;
+            existing.ThirdTeam = request.ThirdTeam;
+            existing.FourthTeam = request.FourthTeam;
             _groupRankRepo.Update(existing);
         }
         else
@@ -86,7 +103,8 @@ public class PredictionHandlers :
                 Group = request.Group,
                 FirstTeam = request.FirstTeam,
                 SecondTeam = request.SecondTeam,
-                ThirdTeam = string.IsNullOrEmpty(request.ThirdTeam) ? null : request.ThirdTeam
+                ThirdTeam = request.ThirdTeam,
+                FourthTeam = request.FourthTeam
             };
             await _groupRankRepo.AddAsync(prediction, cancellationToken);
         }
@@ -96,6 +114,7 @@ public class PredictionHandlers :
 
     public async Task<bool> Handle(SubmitKnockoutPredictionCommand request, CancellationToken cancellationToken)
     {
+        await EnsureNotLocked(cancellationToken);
         var match = await _matchRepo.GetByIdAsync(Guid.Parse(request.MatchId), cancellationToken);
         if (match == null) throw new Exception("Match not found");
 
@@ -103,6 +122,8 @@ public class PredictionHandlers :
         if (existing != null)
         {
             existing.WinnerTeam = request.WinnerTeam;
+            existing.HomeScore = request.HomeScore;
+            existing.AwayScore = request.AwayScore;
             _knockoutRepo.Update(existing);
         }
         else
@@ -111,7 +132,9 @@ public class PredictionHandlers :
             {
                 UserId = request.UserId,
                 MatchId = match.Id,
-                WinnerTeam = request.WinnerTeam
+                WinnerTeam = request.WinnerTeam,
+                HomeScore = request.HomeScore,
+                AwayScore = request.AwayScore
             };
             await _knockoutRepo.AddAsync(prediction, cancellationToken);
         }
@@ -121,8 +144,28 @@ public class PredictionHandlers :
 
     public async Task<bool> Handle(ClearKnockoutPredictionsCommand request, CancellationToken cancellationToken)
     {
+        await EnsureNotLocked(cancellationToken);
         var existing = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         _knockoutRepo.RemoveRange(existing);
+        await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(ClearAllPredictionsCommand request, CancellationToken cancellationToken)
+    {
+        await EnsureNotLocked(cancellationToken);
+        var matchPreds = await _predictionRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        _predictionRepo.RemoveRange(matchPreds);
+
+        var groupPreds = await _groupRankRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        _groupRankRepo.RemoveRange(groupPreds);
+
+        var knockoutPreds = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        _knockoutRepo.RemoveRange(knockoutPreds);
+
+        var special = await _specialRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        if (special != null) _specialRepo.Remove(special);
+
         await _uow.SaveChangesAsync(cancellationToken);
         return true;
     }

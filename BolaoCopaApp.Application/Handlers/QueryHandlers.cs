@@ -11,7 +11,8 @@ public class QueryHandlers :
     IRequestHandler<GetAdminStatsQuery, AdminStatsDto>,
     IRequestHandler<GetUsersAdminQuery, IEnumerable<AdminUserDto>>,
     IRequestHandler<GetUserPredictionsQuery, UserPredictionsDto>,
-    IRequestHandler<GetUserHistoryQuery, IEnumerable<PredictionHistoryItemDto>>
+    IRequestHandler<GetUserHistoryQuery, IEnumerable<PredictionHistoryItemDto>>,
+    IRequestHandler<GetTournamentInfoQuery, TournamentInfoDto>
 {
     private readonly IMatchRepository _matchRepo;
     private readonly IUserRepository _userRepo;
@@ -19,14 +20,16 @@ public class QueryHandlers :
     private readonly IGroupRankPredictionRepository _groupRankRepo;
     private readonly ISpecialPredictionRepository _specialRepo;
     private readonly IKnockoutPredictionRepository _knockoutRepo;
+    private readonly ITournamentRepository _tournamentRepo;
 
     public QueryHandlers(
-        IMatchRepository matchRepo, 
+        IMatchRepository matchRepo,
         IUserRepository userRepo,
         IPredictionRepository predictionRepo,
         IGroupRankPredictionRepository groupRankRepo,
         ISpecialPredictionRepository specialRepo,
-        IKnockoutPredictionRepository knockoutRepo)
+        IKnockoutPredictionRepository knockoutRepo,
+        ITournamentRepository tournamentRepo)
     {
         _matchRepo = matchRepo;
         _userRepo = userRepo;
@@ -34,6 +37,7 @@ public class QueryHandlers :
         _groupRankRepo = groupRankRepo;
         _specialRepo = specialRepo;
         _knockoutRepo = knockoutRepo;
+        _tournamentRepo = tournamentRepo;
     }
 
     public async Task<AdminStatsDto> Handle(GetAdminStatsQuery request, CancellationToken cancellationToken)
@@ -69,7 +73,7 @@ public class QueryHandlers :
             result.Add(new AdminUserDto(user.Id, user.Name, user.Handle.Value, totalPts, user.IsPaid));
         }
 
-        return result.OrderBy(u => u.Name);
+        return result.OrderByDescending(u => u.TotalPts).ThenBy(u => u.Name);
     }
 
     public async Task<IEnumerable<RankingEntryDto>> Handle(GetRankingQuery request, CancellationToken cancellationToken)
@@ -133,12 +137,12 @@ public class QueryHandlers :
             .Select(p => new MatchPredictionSummaryDto(matchMap[p.MatchId], p.HomeScore, p.AwayScore));
 
         var groupPreds = await _groupRankRepo.GetByUserIdAsync(request.UserId, cancellationToken);
-        var groupDtos = groupPreds.Select(g => new GroupRankSummaryDto(g.Group, g.FirstTeam, g.SecondTeam, g.ThirdTeam));
+        var groupDtos = groupPreds.Select(g => new GroupRankSummaryDto(g.Group, g.FirstTeam, g.SecondTeam, g.ThirdTeam, g.FourthTeam, g.Points));
 
         var knockoutPreds = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         var knockoutDtos = knockoutPreds
             .Where(k => matchMap.ContainsKey(k.MatchId))
-            .Select(k => new KnockoutPredictionSummaryDto(matchMap[k.MatchId], k.WinnerTeam));
+            .Select(k => new KnockoutPredictionSummaryDto(matchMap[k.MatchId], k.WinnerTeam, k.HomeScore, k.AwayScore));
 
         return new UserPredictionsDto(matchDtos, groupDtos, knockoutDtos);
     }
@@ -165,5 +169,14 @@ public class QueryHandlers :
                     p.Points, m.MatchDate);
             })
             .OrderByDescending(x => x.MatchDate);
+    }
+
+    public async Task<TournamentInfoDto> Handle(GetTournamentInfoQuery request, CancellationToken cancellationToken)
+    {
+        var tournament = await _tournamentRepo.GetActiveTournamentAsync(cancellationToken);
+        return new TournamentInfoDto(
+            tournament?.CurrentPhase.ToString() ?? "GroupStage",
+            tournament?.PrizePool ?? 0,
+            tournament?.ArePredictionsLocked ?? false);
     }
 }

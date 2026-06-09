@@ -55,7 +55,7 @@ public class PredictionsController : ControllerBase
     {
         try
         {
-            await _mediator.Send(new SubmitGroupRankCommand(GetUserId(), request.Group, request.FirstTeam, request.SecondTeam, request.ThirdTeam));
+            await _mediator.Send(new SubmitGroupRankCommand(GetUserId(), request.Group, request.FirstTeam, request.SecondTeam, request.ThirdTeam, request.FourthTeam));
             return Ok(new { message = "Group rank prediction saved." });
         }
         catch (Exception ex)
@@ -78,12 +78,26 @@ public class PredictionsController : ControllerBase
         }
     }
 
+    [HttpDelete("all")]
+    public async Task<ActionResult> ClearAllPredictions()
+    {
+        try
+        {
+            await _mediator.Send(new ClearAllPredictionsCommand(GetUserId()));
+            return Ok(new { message = "All predictions cleared." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost("knockout")]
     public async Task<ActionResult> SubmitKnockoutPrediction([FromBody] KnockoutPredictionDto request)
     {
         try
         {
-            await _mediator.Send(new SubmitKnockoutPredictionCommand(GetUserId(), request.MatchId, request.WinnerTeam));
+            await _mediator.Send(new SubmitKnockoutPredictionCommand(GetUserId(), request.MatchId, request.WinnerTeam, request.HomeScore, request.AwayScore));
             return Ok(new { message = "Knockout prediction saved." });
         }
         catch (Exception ex)
