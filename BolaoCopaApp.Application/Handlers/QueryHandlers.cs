@@ -133,7 +133,7 @@ public class QueryHandlers :
             .Select(p => new MatchPredictionSummaryDto(matchMap[p.MatchId], p.HomeScore, p.AwayScore));
 
         var groupPreds = await _groupRankRepo.GetByUserIdAsync(request.UserId, cancellationToken);
-        var groupDtos = groupPreds.Select(g => new GroupRankSummaryDto(g.Group, g.FirstTeam, g.SecondTeam));
+        var groupDtos = groupPreds.Select(g => new GroupRankSummaryDto(g.Group, g.FirstTeam, g.SecondTeam, g.ThirdTeam));
 
         var knockoutPreds = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         var knockoutDtos = knockoutPreds

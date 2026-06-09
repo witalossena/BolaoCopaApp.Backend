@@ -7,6 +7,7 @@ public class GroupRankPrediction
     public string Group { get; set; } = string.Empty;
     public string FirstTeam { get; set; } = string.Empty;
     public string SecondTeam { get; set; } = string.Empty;
+    public string? ThirdTeam { get; set; }
     public int Points { get; set; }
 
     public User User { get; set; } = default!;
