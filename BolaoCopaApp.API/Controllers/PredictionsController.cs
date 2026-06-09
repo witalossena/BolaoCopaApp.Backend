@@ -105,4 +105,18 @@ public class PredictionsController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    [HttpPost("specials")]
+    public async Task<ActionResult> SubmitSpecialPrediction([FromBody] SpecialPredictionDto request)
+    {
+        try
+        {
+            await _mediator.Send(new SubmitSpecialPredictionCommand(GetUserId(), request));
+            return Ok(new { message = "Special prediction saved." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }

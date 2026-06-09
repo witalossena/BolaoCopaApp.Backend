@@ -144,7 +144,12 @@ public class QueryHandlers :
             .Where(k => matchMap.ContainsKey(k.MatchId))
             .Select(k => new KnockoutPredictionSummaryDto(matchMap[k.MatchId], k.WinnerTeam, k.HomeScore, k.AwayScore));
 
-        return new UserPredictionsDto(matchDtos, groupDtos, knockoutDtos);
+        var special = await _specialRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        SpecialPredictionDto? specialDto = special != null
+            ? new SpecialPredictionDto(special.Champion, special.RunnerUp, special.ThirdPlace, special.OtherFinalist, special.TopScorer, special.MostAssists, special.MVP, special.GoldenBoy, special.Points)
+            : null;
+
+        return new UserPredictionsDto(matchDtos, groupDtos, knockoutDtos, specialDto);
     }
 
     public async Task<IEnumerable<PredictionHistoryItemDto>> Handle(GetUserHistoryQuery request, CancellationToken cancellationToken)

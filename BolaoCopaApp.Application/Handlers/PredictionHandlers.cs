@@ -12,7 +12,8 @@ public class PredictionHandlers :
     IRequestHandler<SubmitGroupRankCommand, bool>,
     IRequestHandler<SubmitKnockoutPredictionCommand, bool>,
     IRequestHandler<ClearKnockoutPredictionsCommand, bool>,
-    IRequestHandler<ClearAllPredictionsCommand, bool>
+    IRequestHandler<ClearAllPredictionsCommand, bool>,
+    IRequestHandler<SubmitSpecialPredictionCommand, bool>
 {
     private readonly IPredictionRepository _predictionRepo;
     private readonly IMatchRepository _matchRepo;
@@ -137,6 +138,42 @@ public class PredictionHandlers :
                 AwayScore = request.AwayScore
             };
             await _knockoutRepo.AddAsync(prediction, cancellationToken);
+        }
+        await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(SubmitSpecialPredictionCommand request, CancellationToken cancellationToken)
+    {
+        await EnsureNotLocked(cancellationToken);
+        var existing = await _specialRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        if (existing != null)
+        {
+            existing.Champion = request.Prediction.Champion;
+            existing.RunnerUp = request.Prediction.RunnerUp;
+            existing.ThirdPlace = request.Prediction.ThirdPlace;
+            existing.OtherFinalist = request.Prediction.OtherFinalist;
+            existing.TopScorer = request.Prediction.TopScorer;
+            existing.MostAssists = request.Prediction.MostAssists;
+            existing.MVP = request.Prediction.MVP;
+            existing.GoldenBoy = request.Prediction.GoldenBoy;
+            _specialRepo.Update(existing);
+        }
+        else
+        {
+            var prediction = new SpecialPrediction
+            {
+                UserId = request.UserId,
+                Champion = request.Prediction.Champion,
+                RunnerUp = request.Prediction.RunnerUp,
+                ThirdPlace = request.Prediction.ThirdPlace,
+                OtherFinalist = request.Prediction.OtherFinalist,
+                TopScorer = request.Prediction.TopScorer,
+                MostAssists = request.Prediction.MostAssists,
+                MVP = request.Prediction.MVP,
+                GoldenBoy = request.Prediction.GoldenBoy,
+            };
+            await _specialRepo.AddAsync(prediction, cancellationToken);
         }
         await _uow.SaveChangesAsync(cancellationToken);
         return true;
