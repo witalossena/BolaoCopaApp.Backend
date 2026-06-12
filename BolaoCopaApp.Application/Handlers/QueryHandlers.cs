@@ -70,7 +70,7 @@ public class QueryHandlers :
                           (specialPrediction?.Points ?? 0) + 
                           knockoutPredictions.Sum(k => k.Points);
 
-            result.Add(new AdminUserDto(user.Id, user.Name, user.Handle.Value, totalPts, user.IsPaid));
+            result.Add(new AdminUserDto(user.Id, user.Name, user.Handle.Value, totalPts, user.IsPaid, user.IsPredictionUnlocked));
         }
 
         return result.OrderByDescending(u => u.TotalPts).ThenBy(u => u.Name);

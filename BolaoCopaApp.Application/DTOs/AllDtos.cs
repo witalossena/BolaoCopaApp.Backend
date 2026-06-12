@@ -16,7 +16,7 @@ public record KnockoutPredictionDto(string MatchId, string WinnerTeam, int? Home
 public record RankingEntryDto(int Position, string Name, string Handle, int GroupPts, int SpecialPts, int Total, bool IsPaid);
 public record PerformanceDto(int TotalPts, int Position, int GapToLeader, PointsDto Breakdown, double ExactRate);
 
-public record AdminUserDto(Guid Id, string Name, string Handle, int TotalPts, bool IsPaid);
+public record AdminUserDto(Guid Id, string Name, string Handle, int TotalPts, bool IsPaid, bool IsPredictionUnlocked);
 public record AdminStatsDto(int TotalUsers, int PaidCount, int PendingCount, int TotalMatches);
 
 public record MatchPredictionSummaryDto(string ExternalId, int HomeScore, int AwayScore);
@@ -30,6 +30,12 @@ public record UpdateMatchTeamsDto(string HomeTeam, string AwayTeam);
 public class MatchResultRequestDto
 {
     public string MatchId { get; set; } = string.Empty;
+    public int HomeScore { get; set; }
+    public int AwayScore { get; set; }
+}
+
+public class LiveScoreDto
+{
     public int HomeScore { get; set; }
     public int AwayScore { get; set; }
 }

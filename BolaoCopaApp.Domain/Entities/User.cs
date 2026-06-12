@@ -12,6 +12,7 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
     public bool IsPaid { get; set; }
     public decimal PaidAmount { get; set; } = 0;
+    public bool IsPredictionUnlocked { get; set; } = false;
     public Role Role { get; set; } = Role.Player;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

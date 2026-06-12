@@ -33,6 +33,20 @@ public class AdminController : ControllerBase
         return Ok(users);
     }
 
+    [HttpPatch("matches/{id}/live-score")]
+    public async Task<ActionResult> UpdateLiveScore(string id, [FromBody] LiveScoreDto dto)
+    {
+        try
+        {
+            await _mediator.Send(new UpdateLiveScoreCommand(id, dto.HomeScore, dto.AwayScore));
+            return Ok(new { message = "Live score updated." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost("match-result")]
     public async Task<ActionResult> RegisterMatchResult([FromBody] MatchResultRequestDto dto)
     {
@@ -94,6 +108,20 @@ public class AdminController : ControllerBase
     {
         await _mediator.Send(new ToggleUserPaymentCommand(id, isPaid));
         return Ok(new { message = "Payment status updated." });
+    }
+
+    [HttpPatch("users/{id}/unlock-predictions")]
+    public async Task<ActionResult> ToggleUserPredictionUnlock(Guid id, [FromBody] bool isUnlocked)
+    {
+        try
+        {
+            await _mediator.Send(new ToggleUserPredictionUnlockCommand(id, isUnlocked));
+            return Ok(new { message = isUnlocked ? "User predictions unlocked." : "User predictions lock restored." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpGet("group-results")]

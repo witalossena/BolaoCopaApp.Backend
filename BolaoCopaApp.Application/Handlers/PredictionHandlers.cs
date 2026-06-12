@@ -21,6 +21,7 @@ public class PredictionHandlers :
     private readonly IKnockoutPredictionRepository _knockoutRepo;
     private readonly ISpecialPredictionRepository _specialRepo;
     private readonly ITournamentRepository _tournamentRepo;
+    private readonly IUserRepository _userRepo;
     private readonly PredictionValidationService _validationService;
     private readonly IUnitOfWork _uow;
 
@@ -31,6 +32,7 @@ public class PredictionHandlers :
         IKnockoutPredictionRepository knockoutRepo,
         ISpecialPredictionRepository specialRepo,
         ITournamentRepository tournamentRepo,
+        IUserRepository userRepo,
         PredictionValidationService validationService,
         IUnitOfWork uow)
     {
@@ -40,12 +42,17 @@ public class PredictionHandlers :
         _knockoutRepo = knockoutRepo;
         _specialRepo = specialRepo;
         _tournamentRepo = tournamentRepo;
+        _userRepo = userRepo;
         _validationService = validationService;
         _uow = uow;
     }
 
-    private async Task EnsureNotLocked(CancellationToken ct)
+    private async Task EnsureNotLocked(Guid userId, CancellationToken ct)
     {
+        var user = await _userRepo.GetByIdAsync(userId, ct);
+        if (user != null && user.IsPredictionUnlocked)
+            return;
+
         var tournament = await _tournamentRepo.GetActiveTournamentAsync(ct);
         if (tournament != null && tournament.ArePredictionsLocked)
             throw new Exception("All predictions are currently locked by admin.");
@@ -53,7 +60,7 @@ public class PredictionHandlers :
 
     public async Task<bool> Handle(SubmitPredictionCommand request, CancellationToken cancellationToken)
     {
-        await EnsureNotLocked(cancellationToken);
+        await EnsureNotLocked(request.UserId, cancellationToken);
         var match = await _matchRepo.GetByIdAsync(Guid.Parse(request.MatchId), cancellationToken);
         if (match == null) throw new Exception("Match not found");
 
@@ -86,7 +93,7 @@ public class PredictionHandlers :
 
     public async Task<bool> Handle(SubmitGroupRankCommand request, CancellationToken cancellationToken)
     {
-        await EnsureNotLocked(cancellationToken);
+        await EnsureNotLocked(request.UserId, cancellationToken);
         var existing = await _groupRankRepo.GetByUserAndGroupAsync(request.UserId, request.Group, cancellationToken);
         if (existing != null)
         {
@@ -115,7 +122,7 @@ public class PredictionHandlers :
 
     public async Task<bool> Handle(SubmitKnockoutPredictionCommand request, CancellationToken cancellationToken)
     {
-        await EnsureNotLocked(cancellationToken);
+        await EnsureNotLocked(request.UserId, cancellationToken);
         var match = await _matchRepo.GetByIdAsync(Guid.Parse(request.MatchId), cancellationToken);
         if (match == null) throw new Exception("Match not found");
 
@@ -145,7 +152,7 @@ public class PredictionHandlers :
 
     public async Task<bool> Handle(SubmitSpecialPredictionCommand request, CancellationToken cancellationToken)
     {
-        await EnsureNotLocked(cancellationToken);
+        await EnsureNotLocked(request.UserId, cancellationToken);
         var existing = await _specialRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         if (existing != null)
         {
@@ -181,7 +188,7 @@ public class PredictionHandlers :
 
     public async Task<bool> Handle(ClearKnockoutPredictionsCommand request, CancellationToken cancellationToken)
     {
-        await EnsureNotLocked(cancellationToken);
+        await EnsureNotLocked(request.UserId, cancellationToken);
         var existing = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         if (existing.Any())
         {
@@ -197,7 +204,7 @@ public class PredictionHandlers :
 
     public async Task<bool> Handle(ClearAllPredictionsCommand request, CancellationToken cancellationToken)
     {
-        await EnsureNotLocked(cancellationToken);
+        await EnsureNotLocked(request.UserId, cancellationToken);
         var matchPreds = await _predictionRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         var knockoutPreds = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
 

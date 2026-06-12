@@ -11,6 +11,7 @@ using BolaoCopaApp.Domain.Enums;
 namespace BolaoCopaApp.Application.Handlers;
 
 public class AdminHandlers :
+    IRequestHandler<UpdateLiveScoreCommand, bool>,
     IRequestHandler<RegisterMatchResultCommand, bool>,
     IRequestHandler<ResetMatchResultCommand, bool>,
     IRequestHandler<ToggleUserPaymentCommand, bool>,
@@ -23,6 +24,7 @@ public class AdminHandlers :
     IRequestHandler<SetTournamentPhaseCommand, bool>,
     IRequestHandler<SetPrizePoolCommand, bool>,
     IRequestHandler<LockAllPredictionsCommand, bool>,
+    IRequestHandler<ToggleUserPredictionUnlockCommand, bool>,
     IRequestHandler<ConfirmPaymentCommand, bool>,
     IRequestHandler<GetGroupResultsQuery, IEnumerable<GroupResultSummaryDto>>
 {
@@ -53,6 +55,21 @@ public class AdminHandlers :
         _tournamentRepo = tournamentRepo;
         _scoringService = scoringService;
         _uow = uow;
+    }
+
+    public async Task<bool> Handle(UpdateLiveScoreCommand request, CancellationToken cancellationToken)
+    {
+        var match = await _matchRepo.GetByIdAsync(Guid.Parse(request.MatchId), cancellationToken);
+        if (match == null) throw new Exception("Match not found");
+
+        match.HomeScore = request.HomeScore;
+        match.AwayScore = request.AwayScore;
+        match.Status = MatchStatus.Live;
+
+        _matchRepo.Update(match);
+        await _uow.SaveChangesAsync(cancellationToken);
+
+        return true;
     }
 
     public async Task<bool> Handle(RegisterMatchResultCommand request, CancellationToken cancellationToken)
@@ -107,7 +124,7 @@ public class AdminHandlers :
     {
         var allMatches = await _matchRepo.GetAllAsync(cancellationToken);
         var lockedMatches = allMatches
-            .Where(m => m.Status == MatchStatus.Locked && m.HomeScore != null && m.AwayScore != null)
+            .Where(m => (m.Status == MatchStatus.Locked || m.Status == MatchStatus.Live) && m.HomeScore != null && m.AwayScore != null)
             .ToList();
 
         foreach (var match in lockedMatches)
@@ -281,6 +298,16 @@ public class AdminHandlers :
 
         _userRepo.Update(user);
         _tournamentRepo.Update(tournament);
+        await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(ToggleUserPredictionUnlockCommand request, CancellationToken cancellationToken)
+    {
+        var user = await _userRepo.GetByIdAsync(request.UserId, cancellationToken);
+        if (user == null) throw new Exception("User not found.");
+        user.IsPredictionUnlocked = request.IsUnlocked;
+        _userRepo.Update(user);
         await _uow.SaveChangesAsync(cancellationToken);
         return true;
     }

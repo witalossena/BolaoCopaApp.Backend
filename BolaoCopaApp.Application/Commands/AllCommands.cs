@@ -16,6 +16,7 @@ public record SetGroupResultCommand(string Group, string FirstTeam, string Secon
 public record CalculateGroupRankScoresCommand() : IRequest<bool>;
 
 public record RegisterMatchResultCommand(string MatchId, int HomeScore, int AwayScore) : IRequest<bool>;
+public record UpdateLiveScoreCommand(string MatchId, int HomeScore, int AwayScore) : IRequest<bool>;
 public record CalculateAllScoresCommand() : IRequest<bool>;
 public record ToggleUserPaymentCommand(Guid UserId, bool IsPaid) : IRequest<bool>;
 public record LockMatchCommand(string MatchId, bool IsLocked) : IRequest<bool>;
@@ -26,4 +27,5 @@ public record ResetGroupResultCommand(string Group) : IRequest<bool>;
 public record SetTournamentPhaseCommand(string Phase) : IRequest<bool>;
 public record SetPrizePoolCommand(decimal Amount) : IRequest<bool>;
 public record LockAllPredictionsCommand(bool IsLocked) : IRequest<bool>;
+public record ToggleUserPredictionUnlockCommand(Guid UserId, bool IsUnlocked) : IRequest<bool>;
 public record ConfirmPaymentCommand(string Handle, decimal Amount) : IRequest<bool>;
