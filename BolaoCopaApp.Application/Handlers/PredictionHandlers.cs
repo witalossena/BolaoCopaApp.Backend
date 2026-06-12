@@ -183,6 +183,13 @@ public class PredictionHandlers :
     {
         await EnsureNotLocked(cancellationToken);
         var existing = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        if (existing.Any())
+        {
+            var allMatches = await _matchRepo.GetAllAsync(cancellationToken);
+            var matchDict = allMatches.ToDictionary(m => m.Id);
+            if (existing.Any(p => matchDict.TryGetValue(p.MatchId, out var match) && !_validationService.IsMatchPredictionAllowed(match)))
+                throw new Exception("Cannot delete predictions for matches that are already locked.");
+        }
         _knockoutRepo.RemoveRange(existing);
         await _uow.SaveChangesAsync(cancellationToken);
         return true;
@@ -192,12 +199,24 @@ public class PredictionHandlers :
     {
         await EnsureNotLocked(cancellationToken);
         var matchPreds = await _predictionRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+        var knockoutPreds = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
+
+        if (matchPreds.Any() || knockoutPreds.Any())
+        {
+            var allMatches = await _matchRepo.GetAllAsync(cancellationToken);
+            var matchDict = allMatches.ToDictionary(m => m.Id);
+            bool hasLockedMatch =
+                matchPreds.Any(p => matchDict.TryGetValue(p.MatchId, out var match) && !_validationService.IsMatchPredictionAllowed(match)) ||
+                knockoutPreds.Any(p => matchDict.TryGetValue(p.MatchId, out var match) && !_validationService.IsMatchPredictionAllowed(match));
+            if (hasLockedMatch)
+                throw new Exception("Cannot delete predictions for matches that are already locked.");
+        }
+
         _predictionRepo.RemoveRange(matchPreds);
 
         var groupPreds = await _groupRankRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         _groupRankRepo.RemoveRange(groupPreds);
 
-        var knockoutPreds = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         _knockoutRepo.RemoveRange(knockoutPreds);
 
         var special = await _specialRepo.GetByUserIdAsync(request.UserId, cancellationToken);
