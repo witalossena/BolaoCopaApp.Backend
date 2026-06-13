@@ -134,7 +134,7 @@ public class QueryHandlers :
         var matchPreds = await _predictionRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         var matchDtos = matchPreds
             .Where(p => matchMap.ContainsKey(p.MatchId))
-            .Select(p => new MatchPredictionSummaryDto(matchMap[p.MatchId], p.HomeScore, p.AwayScore));
+            .Select(p => new MatchPredictionSummaryDto(matchMap[p.MatchId], p.HomeScore, p.AwayScore, p.Points));
 
         var groupPreds = await _groupRankRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         var groupDtos = groupPreds.Select(g => new GroupRankSummaryDto(g.Group, g.FirstTeam, g.SecondTeam, g.ThirdTeam, g.FourthTeam, g.Points));
