@@ -61,6 +61,7 @@ public class AdminHandlers :
     {
         var match = await _matchRepo.GetByIdAsync(Guid.Parse(request.MatchId), cancellationToken);
         if (match == null) throw new Exception("Match not found");
+        if (match.Status == MatchStatus.Locked) throw new InvalidOperationException("Cannot update score of a finalized match.");
 
         match.HomeScore = request.HomeScore;
         match.AwayScore = request.AwayScore;
@@ -76,6 +77,7 @@ public class AdminHandlers :
     {
         var match = await _matchRepo.GetByIdAsync(Guid.Parse(request.MatchId), cancellationToken);
         if (match == null) throw new Exception("Match not found");
+        if (match.Status == MatchStatus.Locked) throw new InvalidOperationException("Cannot change score of a finalized match.");
 
         match.HomeScore = request.HomeScore;
         match.AwayScore = request.AwayScore;
