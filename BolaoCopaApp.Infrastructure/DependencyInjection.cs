@@ -2,6 +2,7 @@ using BolaoCopaApp.Domain.Interfaces;
 using BolaoCopaApp.Domain.Interfaces.Repositories;
 using BolaoCopaApp.Infrastructure.Persistence;
 using BolaoCopaApp.Infrastructure.Repositories;
+using BolaoCopaApp.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IGroupResultRepository, GroupResultRepository>();
         services.AddScoped<BolaoCopaApp.Application.Interfaces.IJwtService, BolaoCopaApp.Infrastructure.Services.JwtService>();
         services.AddScoped<BolaoCopaApp.Application.Interfaces.IPaymentService, BolaoCopaApp.Infrastructure.Services.MercadoPagoService>();
+        services.AddHostedService<MatchAutoLockService>();
 
         return services;
     }
