@@ -122,9 +122,11 @@ public class PredictionHandlers :
 
     public async Task<bool> Handle(SubmitKnockoutPredictionCommand request, CancellationToken cancellationToken)
     {
-        await EnsureNotLocked(request.UserId, cancellationToken);
         var match = await _matchRepo.GetByIdAsync(Guid.Parse(request.MatchId), cancellationToken);
         if (match == null) throw new Exception("Match not found");
+
+        if (!_validationService.IsMatchPredictionAllowed(match))
+            throw new Exception("Prediction not allowed: match is locked.");
 
         var existing = await _knockoutRepo.GetByUserAndMatchAsync(request.UserId, match.Id, cancellationToken);
         if (existing != null)
@@ -132,6 +134,7 @@ public class PredictionHandlers :
             existing.WinnerTeam = request.WinnerTeam;
             existing.HomeScore = request.HomeScore;
             existing.AwayScore = request.AwayScore;
+            existing.Resolution = request.Resolution;
             _knockoutRepo.Update(existing);
         }
         else
@@ -142,7 +145,8 @@ public class PredictionHandlers :
                 MatchId = match.Id,
                 WinnerTeam = request.WinnerTeam,
                 HomeScore = request.HomeScore,
-                AwayScore = request.AwayScore
+                AwayScore = request.AwayScore,
+                Resolution = request.Resolution,
             };
             await _knockoutRepo.AddAsync(prediction, cancellationToken);
         }

@@ -52,7 +52,7 @@ public class AdminController : ControllerBase
     {
         try
         {
-            await _mediator.Send(new RegisterMatchResultCommand(dto.MatchId, dto.HomeScore, dto.AwayScore));
+            await _mediator.Send(new RegisterMatchResultCommand(dto.MatchId, dto.HomeScore, dto.AwayScore, dto.Resolution));
             return Ok(new { message = "Match result registered." });
         }
         catch (Exception ex)
@@ -213,5 +213,12 @@ public class AdminController : ControllerBase
     {
         await _mediator.Send(new CalculateGroupRankScoresCommand());
         return Ok(new { message = "Group rank scores calculated." });
+    }
+
+    [HttpPost("calculate-knockout-scores")]
+    public async Task<ActionResult> CalculateKnockoutScores()
+    {
+        await _mediator.Send(new CalculateKnockoutScoresCommand());
+        return Ok(new { message = "Knockout scores calculated." });
     }
 }

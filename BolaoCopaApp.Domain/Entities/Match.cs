@@ -15,4 +15,5 @@ public class Match
     public MatchStatus Status { get; set; } = MatchStatus.Open;
     public Score? HomeScore { get; set; }
     public Score? AwayScore { get; set; }
+    public string? Resolution { get; set; } // "Normal" | "ExtraTime" | "Penalties"
 }

@@ -16,6 +16,7 @@ public class AdminHandlers :
     IRequestHandler<ResetMatchResultCommand, bool>,
     IRequestHandler<ToggleUserPaymentCommand, bool>,
     IRequestHandler<CalculateAllScoresCommand, bool>,
+    IRequestHandler<CalculateKnockoutScoresCommand, bool>,
     IRequestHandler<LockMatchCommand, bool>,
     IRequestHandler<UpdateMatchTeamsCommand, bool>,
     IRequestHandler<SetGroupResultCommand, bool>,
@@ -34,6 +35,7 @@ public class AdminHandlers :
     private readonly IGroupRankPredictionRepository _groupRankRepo;
     private readonly IGroupResultRepository _groupResultRepo;
     private readonly ITournamentRepository _tournamentRepo;
+    private readonly IKnockoutPredictionRepository _knockoutRepo;
     private readonly ScoringService _scoringService;
     private readonly IUnitOfWork _uow;
 
@@ -44,6 +46,7 @@ public class AdminHandlers :
         IGroupRankPredictionRepository groupRankRepo,
         IGroupResultRepository groupResultRepo,
         ITournamentRepository tournamentRepo,
+        IKnockoutPredictionRepository knockoutRepo,
         ScoringService scoringService,
         IUnitOfWork uow)
     {
@@ -53,6 +56,7 @@ public class AdminHandlers :
         _groupRankRepo = groupRankRepo;
         _groupResultRepo = groupResultRepo;
         _tournamentRepo = tournamentRepo;
+        _knockoutRepo = knockoutRepo;
         _scoringService = scoringService;
         _uow = uow;
     }
@@ -81,6 +85,7 @@ public class AdminHandlers :
 
         match.HomeScore = request.HomeScore;
         match.AwayScore = request.AwayScore;
+        match.Resolution = request.Resolution;
         match.Status = MatchStatus.Locked;
 
         _matchRepo.Update(match);
@@ -141,6 +146,30 @@ public class AdminHandlers :
                     match.AwayScore!
                 );
                 _predictionRepo.Update(pred);
+            }
+        }
+
+        await _uow.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(CalculateKnockoutScoresCommand request, CancellationToken cancellationToken)
+    {
+        var allMatches = await _matchRepo.GetAllAsync(cancellationToken);
+        var knockoutMatches = allMatches
+            .Where(m => m.ExternalId.StartsWith("ko_") && m.Status == MatchStatus.Locked && m.HomeScore != null && m.AwayScore != null)
+            .ToList();
+
+        foreach (var match in knockoutMatches)
+        {
+            var winner = match.HomeScore!.Value > match.AwayScore!.Value ? match.HomeTeam : match.AwayTeam;
+            var predictions = await _knockoutRepo.GetByMatchIdAsync(match.Id, cancellationToken);
+            foreach (var pred in predictions)
+            {
+                pred.Points = _scoringService.CalculateKnockoutScore(
+                    pred.WinnerTeam, pred.HomeScore, pred.AwayScore, pred.Resolution,
+                    winner, match.HomeScore.Value, match.AwayScore.Value, match.Resolution);
+                _knockoutRepo.Update(pred);
             }
         }
 

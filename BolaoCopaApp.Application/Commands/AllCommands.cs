@@ -9,13 +9,14 @@ public record LoginCommand(LoginRequest Request) : IRequest<AuthResponse>;
 public record SubmitPredictionCommand(Guid UserId, string MatchId, int HomeScore, int AwayScore) : IRequest<bool>;
 public record SubmitGroupRankCommand(Guid UserId, string Group, string FirstTeam, string SecondTeam, string? ThirdTeam, string? FourthTeam) : IRequest<bool>;
 public record SubmitSpecialPredictionCommand(Guid UserId, SpecialPredictionDto Prediction) : IRequest<bool>;
-public record SubmitKnockoutPredictionCommand(Guid UserId, string MatchId, string WinnerTeam, int? HomeScore, int? AwayScore) : IRequest<bool>;
+public record SubmitKnockoutPredictionCommand(Guid UserId, string MatchId, string WinnerTeam, int? HomeScore, int? AwayScore, string? Resolution) : IRequest<bool>;
 public record ClearKnockoutPredictionsCommand(Guid UserId) : IRequest<bool>;
 public record ClearAllPredictionsCommand(Guid UserId) : IRequest<bool>;
 public record SetGroupResultCommand(string Group, string FirstTeam, string SecondTeam, string? ThirdTeam, string? FourthTeam) : IRequest<bool>;
 public record CalculateGroupRankScoresCommand() : IRequest<bool>;
 
-public record RegisterMatchResultCommand(string MatchId, int HomeScore, int AwayScore) : IRequest<bool>;
+public record RegisterMatchResultCommand(string MatchId, int HomeScore, int AwayScore, string? Resolution = null) : IRequest<bool>;
+public record CalculateKnockoutScoresCommand() : IRequest<bool>;
 public record UpdateLiveScoreCommand(string MatchId, int HomeScore, int AwayScore) : IRequest<bool>;
 public record CalculateAllScoresCommand() : IRequest<bool>;
 public record ToggleUserPaymentCommand(Guid UserId, bool IsPaid) : IRequest<bool>;

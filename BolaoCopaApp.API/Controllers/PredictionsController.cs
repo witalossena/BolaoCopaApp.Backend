@@ -97,7 +97,7 @@ public class PredictionsController : ControllerBase
     {
         try
         {
-            await _mediator.Send(new SubmitKnockoutPredictionCommand(GetUserId(), request.MatchId, request.WinnerTeam, request.HomeScore, request.AwayScore));
+            await _mediator.Send(new SubmitKnockoutPredictionCommand(GetUserId(), request.MatchId, request.WinnerTeam, request.HomeScore, request.AwayScore, request.Resolution));
             return Ok(new { message = "Knockout prediction saved." });
         }
         catch (Exception ex)

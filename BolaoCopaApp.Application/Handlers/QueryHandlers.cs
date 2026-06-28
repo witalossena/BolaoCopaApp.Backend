@@ -142,7 +142,7 @@ public class QueryHandlers :
         var knockoutPreds = await _knockoutRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         var knockoutDtos = knockoutPreds
             .Where(k => matchMap.ContainsKey(k.MatchId))
-            .Select(k => new KnockoutPredictionSummaryDto(matchMap[k.MatchId], k.WinnerTeam, k.HomeScore, k.AwayScore));
+            .Select(k => new KnockoutPredictionSummaryDto(matchMap[k.MatchId], k.WinnerTeam, k.HomeScore, k.AwayScore, k.Resolution));
 
         var special = await _specialRepo.GetByUserIdAsync(request.UserId, cancellationToken);
         SpecialPredictionDto? specialDto = special != null

@@ -68,13 +68,23 @@ public class ScoringService
         return score;
     }
 
-    public int CalculateKnockoutScore(string predictedWinner, int? predictedHome, int? predictedAway, string actualWinner, int? actualHome, int? actualAway)
+    public int CalculateKnockoutScore(
+        string predictedWinner, int? predictedHome, int? predictedAway, string? predictedResolution,
+        string actualWinner, int? actualHome, int? actualAway, string? actualResolution)
     {
         if (predictedWinner != actualWinner) return 0;
-        if (predictedHome.HasValue && predictedAway.HasValue &&
-            actualHome.HasValue && actualAway.HasValue &&
-            predictedHome == actualHome && predictedAway == actualAway) return 20;
-        return 15;
+
+        int pts = 15;
+
+        bool exactScore = predictedHome.HasValue && predictedAway.HasValue &&
+                          actualHome.HasValue && actualAway.HasValue &&
+                          predictedHome == actualHome && predictedAway == actualAway;
+        if (exactScore) pts += 5; // 15 → 20
+
+        bool resolutionApplies = !string.IsNullOrEmpty(actualResolution) && actualResolution != "Normal";
+        if (resolutionApplies && predictedResolution == actualResolution) pts += 5;
+
+        return pts;
     }
 
     public int CalculateSpecialScore(SpecialPrediction prediction, SpecialPrediction actual)

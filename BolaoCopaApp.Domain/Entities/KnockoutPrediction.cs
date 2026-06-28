@@ -8,6 +8,7 @@ public class KnockoutPrediction
     public string WinnerTeam { get; set; } = string.Empty;
     public int? HomeScore { get; set; }
     public int? AwayScore { get; set; }
+    public string? Resolution { get; set; } // "Normal" | "ExtraTime" | "Penalties"
     public int Points { get; set; }
 
     public User User { get; set; } = default!;
