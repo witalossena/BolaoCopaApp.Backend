@@ -101,7 +101,6 @@ using (var scope = app.Services.CreateScope())
     {
         context.Database.Migrate();
     }
-    await CsvDataSeeder.SeedAsync(context);
     await MatchSeeder.SeedAsync(context);
     await MatchSeeder.SeedRoundOf32Async(context);
     await MatchSeeder.SeedKnockoutAsync(context);
