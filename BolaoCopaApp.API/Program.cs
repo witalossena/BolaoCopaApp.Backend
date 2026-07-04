@@ -1,4 +1,3 @@
-using BolaoCopaApp.API.Services;
 using BolaoCopaApp.Application;
 using BolaoCopaApp.Infrastructure;
 using BolaoCopaApp.Infrastructure.Persistence;
@@ -15,7 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add layers
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddHostedService<MatchAutoLockService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
