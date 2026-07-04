@@ -43,15 +43,15 @@ public static class MatchSeeder
 
         var knockout = new List<Match>
         {
-            // Oitavas: 8 vencedores dos 16avos de cada lado do bracket
-            new Match { ExternalId = "ko_r16_0", HomeTeam = "Vencedor R32-1", AwayTeam = "Vencedor R32-2",   Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  5, 16, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_1", HomeTeam = "Vencedor R32-3", AwayTeam = "Vencedor R32-4",   Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  5, 19, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_2", HomeTeam = "Vencedor R32-5", AwayTeam = "Vencedor R32-6",   Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  5, 22, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_3", HomeTeam = "Vencedor R32-7", AwayTeam = "Vencedor R32-8",   Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  6, 16, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_4", HomeTeam = "Vencedor R32-9", AwayTeam = "Vencedor R32-10",  Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  6, 19, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_5", HomeTeam = "Vencedor R32-11", AwayTeam = "Vencedor R32-12", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  6, 22, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_6", HomeTeam = "Vencedor R32-13", AwayTeam = "Vencedor R32-14", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  7, 16, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_r16_7", HomeTeam = "Vencedor R32-15", AwayTeam = "Vencedor R32-16", Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  7, 19, 0, 0, DateTimeKind.Utc) },
+            // Oitavas de final
+            new Match { ExternalId = "ko_r16_0", HomeTeam = "Canadá",         AwayTeam = "Marrocos",         Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  4, 17, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_1", HomeTeam = "Paraguai",        AwayTeam = "França",           Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  4, 21, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_2", HomeTeam = "Brasil",          AwayTeam = "Noruega",          Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  5, 20, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_3", HomeTeam = "México",          AwayTeam = "Inglaterra",       Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  6,  0, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_4", HomeTeam = "Portugal",        AwayTeam = "Espanha",          Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  6, 19, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_5", HomeTeam = "Estados Unidos",  AwayTeam = "Bélgica",          Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  7,  0, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_6", HomeTeam = "Argentina",       AwayTeam = "Egito",            Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  7, 16, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_r16_7", HomeTeam = "Suíça",           AwayTeam = "Colômbia",         Round = MatchRound.RoundOf16, MatchDate = new DateTime(2026, 7,  7, 20, 0, 0, DateTimeKind.Utc) },
             new Match { ExternalId = "ko_qf_0",  HomeTeam = "Vencedor R16-1", AwayTeam = "Vencedor R16-2",   Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 10, 19, 0, 0, DateTimeKind.Utc) },
             new Match { ExternalId = "ko_qf_1",  HomeTeam = "Vencedor R16-3", AwayTeam = "Vencedor R16-4",   Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 10, 22, 0, 0, DateTimeKind.Utc) },
             new Match { ExternalId = "ko_qf_2",  HomeTeam = "Vencedor R16-5", AwayTeam = "Vencedor R16-6",   Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 11, 19, 0, 0, DateTimeKind.Utc) },
