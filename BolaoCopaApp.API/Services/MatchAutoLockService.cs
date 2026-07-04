@@ -37,12 +37,15 @@ public class MatchAutoLockService : BackgroundService
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<BolaoDbContext>();
 
-        var cutoff = DateTime.UtcNow.AddMinutes(10);
+        var now = DateTime.UtcNow;
+        var cutoff = now.AddMinutes(10);
+        _logger.LogDebug("AutoLock tick: UtcNow={Now:u}, cutoff={Cutoff:u}", now, cutoff);
 
         var matches = await context.Matches
             .Where(m => m.Status == MatchStatus.Open && m.MatchDate <= cutoff)
             .ToListAsync(ct);
 
+        _logger.LogDebug("AutoLock found {Count} matches to lock", matches.Count);
         if (matches.Count == 0) return;
 
         foreach (var match in matches)
