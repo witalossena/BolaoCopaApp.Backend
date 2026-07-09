@@ -55,7 +55,7 @@ public static class MatchSeeder
             new Match { ExternalId = "ko_qf_0",  HomeTeam = "França",          AwayTeam = "Marrocos",         Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7,  9, 20, 0, 0, DateTimeKind.Utc) },
             new Match { ExternalId = "ko_qf_1",  HomeTeam = "Espanha",         AwayTeam = "Bélgica",          Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 10, 19, 0, 0, DateTimeKind.Utc) },
             new Match { ExternalId = "ko_qf_2",  HomeTeam = "Noruega",         AwayTeam = "Inglaterra",       Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 11, 21, 0, 0, DateTimeKind.Utc) },
-            new Match { ExternalId = "ko_qf_3",  HomeTeam = "Vencedor R16-7", AwayTeam = "Vencedor R16-8",   Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 11, 22, 0, 0, DateTimeKind.Utc) },
+            new Match { ExternalId = "ko_qf_3",  HomeTeam = "Argentina",       AwayTeam = "Suíça",            Round = MatchRound.QuarterFinal, MatchDate = new DateTime(2026, 7, 12,  1, 0, 0, DateTimeKind.Utc) },
             new Match { ExternalId = "ko_sf_0",  HomeTeam = "Vencedor QF-1",  AwayTeam = "Vencedor QF-2",    Round = MatchRound.SemiFinal,    MatchDate = new DateTime(2026, 7, 14, 19, 0, 0, DateTimeKind.Utc) },
             new Match { ExternalId = "ko_sf_1",  HomeTeam = "Vencedor QF-3",  AwayTeam = "Vencedor QF-4",    Round = MatchRound.SemiFinal,    MatchDate = new DateTime(2026, 7, 15, 19, 0, 0, DateTimeKind.Utc) },
             new Match { ExternalId = "ko_3rd",   HomeTeam = "Perdedor SF-1",  AwayTeam = "Perdedor SF-2",    Round = MatchRound.ThirdPlace,   MatchDate = new DateTime(2026, 7, 18, 19, 0, 0, DateTimeKind.Utc) },
