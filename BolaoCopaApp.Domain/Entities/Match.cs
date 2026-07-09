@@ -16,4 +16,5 @@ public class Match
     public Score? HomeScore { get; set; }
     public Score? AwayScore { get; set; }
     public string? Resolution { get; set; } // "Normal" | "ExtraTime" | "Penalties"
+    public string? WinnerTeam { get; set; } // required when score is tied (ExtraTime/Penalties)
 }

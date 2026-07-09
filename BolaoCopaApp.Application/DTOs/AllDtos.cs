@@ -33,6 +33,7 @@ public class MatchResultRequestDto
     public int HomeScore { get; set; }
     public int AwayScore { get; set; }
     public string? Resolution { get; set; }
+    public string? WinnerTeam { get; set; }
 }
 
 public class LiveScoreDto

@@ -52,7 +52,7 @@ public class AdminController : ControllerBase
     {
         try
         {
-            await _mediator.Send(new RegisterMatchResultCommand(dto.MatchId, dto.HomeScore, dto.AwayScore, dto.Resolution));
+            await _mediator.Send(new RegisterMatchResultCommand(dto.MatchId, dto.HomeScore, dto.AwayScore, dto.Resolution, dto.WinnerTeam));
             return Ok(new { message = "Match result registered." });
         }
         catch (Exception ex)

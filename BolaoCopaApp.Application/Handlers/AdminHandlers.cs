@@ -86,6 +86,8 @@ public class AdminHandlers :
         match.HomeScore = request.HomeScore;
         match.AwayScore = request.AwayScore;
         match.Resolution = request.Resolution;
+        match.WinnerTeam = request.WinnerTeam
+            ?? (request.HomeScore > request.AwayScore ? match.HomeTeam : request.HomeScore < request.AwayScore ? match.AwayTeam : null);
         match.Status = MatchStatus.Locked;
 
         _matchRepo.Update(match);
@@ -101,6 +103,8 @@ public class AdminHandlers :
 
         match.HomeScore = null;
         match.AwayScore = null;
+        match.Resolution = null;
+        match.WinnerTeam = null;
         match.Status = MatchStatus.Open;
 
         var predictions = await _predictionRepo.GetByMatchIdAsync(match.Id, cancellationToken);
@@ -162,7 +166,8 @@ public class AdminHandlers :
 
         foreach (var match in knockoutMatches)
         {
-            var winner = match.HomeScore!.Value > match.AwayScore!.Value ? match.HomeTeam : match.AwayTeam;
+            var winner = match.WinnerTeam
+                ?? (match.HomeScore!.Value > match.AwayScore!.Value ? match.HomeTeam : match.AwayTeam);
             var predictions = await _knockoutRepo.GetByMatchIdAsync(match.Id, cancellationToken);
             foreach (var pred in predictions)
             {

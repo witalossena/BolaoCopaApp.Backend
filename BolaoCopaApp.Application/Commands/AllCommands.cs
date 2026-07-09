@@ -15,7 +15,7 @@ public record ClearAllPredictionsCommand(Guid UserId) : IRequest<bool>;
 public record SetGroupResultCommand(string Group, string FirstTeam, string SecondTeam, string? ThirdTeam, string? FourthTeam) : IRequest<bool>;
 public record CalculateGroupRankScoresCommand() : IRequest<bool>;
 
-public record RegisterMatchResultCommand(string MatchId, int HomeScore, int AwayScore, string? Resolution = null) : IRequest<bool>;
+public record RegisterMatchResultCommand(string MatchId, int HomeScore, int AwayScore, string? Resolution = null, string? WinnerTeam = null) : IRequest<bool>;
 public record CalculateKnockoutScoresCommand() : IRequest<bool>;
 public record UpdateLiveScoreCommand(string MatchId, int HomeScore, int AwayScore) : IRequest<bool>;
 public record CalculateAllScoresCommand() : IRequest<bool>;
