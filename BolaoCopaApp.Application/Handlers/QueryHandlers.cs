@@ -12,7 +12,8 @@ public class QueryHandlers :
     IRequestHandler<GetUsersAdminQuery, IEnumerable<AdminUserDto>>,
     IRequestHandler<GetUserPredictionsQuery, UserPredictionsDto>,
     IRequestHandler<GetUserHistoryQuery, IEnumerable<PredictionHistoryItemDto>>,
-    IRequestHandler<GetTournamentInfoQuery, TournamentInfoDto>
+    IRequestHandler<GetTournamentInfoQuery, TournamentInfoDto>,
+    IRequestHandler<GetBetsReportQuery, BetsReportDto>
 {
     private readonly IMatchRepository _matchRepo;
     private readonly IUserRepository _userRepo;
@@ -21,6 +22,7 @@ public class QueryHandlers :
     private readonly ISpecialPredictionRepository _specialRepo;
     private readonly IKnockoutPredictionRepository _knockoutRepo;
     private readonly ITournamentRepository _tournamentRepo;
+    private readonly IGroupResultRepository _groupResultRepo;
 
     public QueryHandlers(
         IMatchRepository matchRepo,
@@ -29,7 +31,8 @@ public class QueryHandlers :
         IGroupRankPredictionRepository groupRankRepo,
         ISpecialPredictionRepository specialRepo,
         IKnockoutPredictionRepository knockoutRepo,
-        ITournamentRepository tournamentRepo)
+        ITournamentRepository tournamentRepo,
+        IGroupResultRepository groupResultRepo)
     {
         _matchRepo = matchRepo;
         _userRepo = userRepo;
@@ -38,6 +41,7 @@ public class QueryHandlers :
         _specialRepo = specialRepo;
         _knockoutRepo = knockoutRepo;
         _tournamentRepo = tournamentRepo;
+        _groupResultRepo = groupResultRepo;
     }
 
     public async Task<AdminStatsDto> Handle(GetAdminStatsQuery request, CancellationToken cancellationToken)
@@ -183,5 +187,79 @@ public class QueryHandlers :
             tournament?.CurrentPhase.ToString() ?? "GroupStage",
             tournament?.PrizePool ?? 0,
             tournament?.ArePredictionsLocked ?? false);
+    }
+
+    public async Task<BetsReportDto> Handle(GetBetsReportQuery request, CancellationToken cancellationToken)
+    {
+        var users = await _userRepo.GetAllAsync(cancellationToken);
+        var allMatches = await _matchRepo.GetAllAsync(cancellationToken);
+        var matchById = allMatches.ToDictionary(m => m.Id);
+        var groupResults = (await _groupResultRepo.GetAllAsync(cancellationToken)).ToDictionary(r => r.Group);
+
+        static string DerivePrediction(int home, int away, string homeTeam, string awayTeam) =>
+            home > away ? homeTeam : home < away ? awayTeam : "Empate";
+
+        static string DeriveMatchResult(int home, int away, string homeTeam, string awayTeam) =>
+            home > away ? homeTeam : home < away ? awayTeam : "Empate";
+
+        static string DeriveKoWinner(int? home, int? away, string homeTeam, string awayTeam) =>
+            (home == null || away == null) ? "" : home > away ? homeTeam : awayTeam;
+
+        var userRows = new List<BetsReportUserDto>();
+        var matchPreds = new List<BetsReportMatchPredDto>();
+        var groupPreds = new List<BetsReportGroupPredDto>();
+        var knockoutPreds = new List<BetsReportKnockoutPredDto>();
+        var specialPreds = new List<BetsReportSpecialDto>();
+
+        foreach (var user in users.OrderBy(u => u.Name))
+        {
+            var mPreds = await _predictionRepo.GetByUserIdAsync(user.Id, cancellationToken);
+            var gPreds = await _groupRankRepo.GetByUserIdAsync(user.Id, cancellationToken);
+            var kPreds = await _knockoutRepo.GetByUserIdAsync(user.Id, cancellationToken);
+            var sPred  = await _specialRepo.GetByUserIdAsync(user.Id, cancellationToken);
+
+            int mPts = mPreds.Sum(p => p.Points);
+            int gPts = gPreds.Sum(p => p.Points);
+            int kPts = kPreds.Sum(p => p.Points);
+            int sPts = sPred?.Points ?? 0;
+
+            userRows.Add(new BetsReportUserDto(user.Name, user.Handle.Value, mPts, gPts, kPts, sPts, mPts + gPts + kPts + sPts));
+
+            foreach (var p in mPreds)
+            {
+                if (!matchById.TryGetValue(p.MatchId, out var m)) continue;
+                var prediction = DerivePrediction(p.HomeScore, p.AwayScore, m.HomeTeam, m.AwayTeam);
+                var realResult = (m.HomeScore != null && m.AwayScore != null)
+                    ? $"{DeriveMatchResult(m.HomeScore.Value, m.AwayScore.Value, m.HomeTeam, m.AwayTeam)} ({m.HomeScore.Value}-{m.AwayScore.Value})"
+                    : "Não encerrado";
+                matchPreds.Add(new BetsReportMatchPredDto(user.Name, user.Handle.Value, m.HomeTeam, m.AwayTeam, m.Group ?? "", m.Round.ToString(), prediction, realResult, p.Points));
+            }
+
+            foreach (var g in gPreds)
+            {
+                groupResults.TryGetValue(g.Group, out var gr);
+                groupPreds.Add(new BetsReportGroupPredDto(
+                    user.Name, user.Handle.Value, g.Group,
+                    g.FirstTeam, g.SecondTeam, g.ThirdTeam, g.FourthTeam,
+                    gr?.FirstTeam ?? "", gr?.SecondTeam ?? "", gr?.ThirdTeam, gr?.FourthTeam,
+                    g.Points));
+            }
+
+            foreach (var k in kPreds)
+            {
+                if (!matchById.TryGetValue(k.MatchId, out var m)) continue;
+                var realWinner = DeriveKoWinner(m.HomeScore?.Value, m.AwayScore?.Value, m.HomeTeam, m.AwayTeam);
+                knockoutPreds.Add(new BetsReportKnockoutPredDto(user.Name, user.Handle.Value, m.HomeTeam, m.AwayTeam, m.Round.ToString(), k.WinnerTeam, k.Resolution, realWinner, m.Resolution, k.Points));
+            }
+
+            if (sPred != null)
+                specialPreds.Add(new BetsReportSpecialDto(
+                    user.Name, user.Handle.Value,
+                    sPred.Champion, sPred.RunnerUp, sPred.ThirdPlace, sPred.OtherFinalist,
+                    sPred.TopScorer, sPred.MostAssists, sPred.MVP, sPred.GoldenBoy,
+                    sPred.Points));
+        }
+
+        return new BetsReportDto(userRows, matchPreds, groupPreds, knockoutPreds, specialPreds);
     }
 }

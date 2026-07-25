@@ -46,6 +46,18 @@ public record TournamentInfoDto(string Phase, decimal PrizePool, bool ArePredict
 
 public record ConfirmPaymentRequest(string Handle, decimal Amount);
 
+public record BetsReportUserDto(string Name, string Handle, int MatchPts, int GroupPts, int KnockoutPts, int SpecialPts, int Total);
+public record BetsReportMatchPredDto(string UserName, string UserHandle, string HomeTeam, string AwayTeam, string Group, string Round, string Prediction, string RealResult, int Points);
+public record BetsReportGroupPredDto(string UserName, string UserHandle, string Group, string First, string Second, string? Third, string? Fourth, string RealFirst, string RealSecond, string? RealThird, string? RealFourth, int Points);
+public record BetsReportKnockoutPredDto(string UserName, string UserHandle, string HomeTeam, string AwayTeam, string Round, string WinnerTeam, string? Resolution, string RealWinner, string? RealResolution, int Points);
+public record BetsReportSpecialDto(string UserName, string UserHandle, string? Champion, string? RunnerUp, string? ThirdPlace, string? OtherFinalist, string? TopScorer, string? MostAssists, string? MVP, string? GoldenBoy, int Points);
+public record BetsReportDto(
+    IEnumerable<BetsReportUserDto> Users,
+    IEnumerable<BetsReportMatchPredDto> MatchPredictions,
+    IEnumerable<BetsReportGroupPredDto> GroupPredictions,
+    IEnumerable<BetsReportKnockoutPredDto> KnockoutPredictions,
+    IEnumerable<BetsReportSpecialDto> SpecialPredictions);
+
 public record PredictionHistoryItemDto(
     string HomeTeam, string AwayTeam, string Group,
     int PredictedHome, int PredictedAway,
